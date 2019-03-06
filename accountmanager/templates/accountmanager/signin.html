@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+{% load static %}
+{% load widget_tweaks %}
+
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="{% static 'assets/img/robocondo/25037148 - no slogan.png' %}">
+
+	<title>Robocondo - Reserve Fund Investing Made Easy</title>
+
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700&amp;subset=latin-ext" rel="stylesheet">
+
+	<!-- CSS - REQUIRED - START -->
+	<!-- Batch Icons -->
+	<link rel="stylesheet" href="{% static 'assets/fonts/batch-icons/css/batch-icons.css' %}">
+	<!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap/bootstrap.min.css' %}">
+	<!-- Material Design Bootstrap -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap/mdb.min.css' %}">
+	<!-- Custom Scrollbar -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/custom-scrollbar/jquery.mCustomScrollbar.min.css' %}">
+	<!-- Hamburger Menu -->
+	<link rel="stylesheet" href="{% static 'assets/css/hamburgers/hamburgers.css' %}">
+
+	<!-- CSS - REQUIRED - END -->
+
+	<!-- CSS - OPTIONAL - START -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="{% static 'assets/fonts/font-awesome/css/font-awesome.min.css' %}">
+
+	<!-- CSS - DEMO - START -->
+	<link rel="stylesheet" href="{% static 'assets/demo/css/ui-icons-batch-icons.css' %}">
+	<!-- CSS - DEMO - END -->
+
+	<!-- CSS - OPTIONAL - END -->
+
+	<!-- QuillPro Styles -->
+	<link rel="stylesheet" href="{% static 'assets/css/quillpro/quillpro.css' %}">
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="right-column">
+				<div class="row mx-0">
+					<div class="col-md-7 order-md-1 signin-right-column bg-dark">
+						<img class="img-fluid" src="{% static 'assets/img/robocondo/25037148.png' %}" width="800" height="600" alt="RoboCondo">
+						<div class="row">
+							<div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+								<!-- DEMO MODE Button trigger modal -->
+								<button type="button" class="btn btn-block btn-outline-light btn-xl" data-toggle="modal" data-target="#demoModal">
+									CLICK HERE TO TRY!
+								</button>
+							</div>
+						</div>
+					</div>
+					<div class="col-md-5 order-md-2 signin-left-column bg-white px-5">
+						<!-- DEMO MODE: Modal; NEEDS TO BE HERE FOR PROPER COLOR SCHEME -->
+						<div class="modal fade bg-white" id="demoModal" tabindex="-1" role="dialog" aria-labelledby="demoModalTitle" aria-hidden="true">
+							<div class="modal-dialog modal-dialog-centered" role="document">
+								<div class="modal-content">
+									<form enctype="multipart/form-data" action="" method="post">
+										<div class="modal-header bg-dark">
+
+											<h5 class="modal-title" id="demoTitle">Input Reserve Fund Study Details ...</h5>
+											<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+												<span aria-hidden="true">&times;</span>
+											</button>
+										</div>
+										<div class="modal-body">
+												{% csrf_token %}
+												{% for field in demo_form.visible_fields %}
+													<div class="form-group has-danger">
+														<label for="{{ field.id_for_label }}">{{ field.label }}</label>
+														{{ field|add_class:'form-control' }}
+														{% for error in field.errors %}
+														<span class="help-block">{{ error }}</span>
+														{% endfor %}
+													</div>
+												{% endfor %}
+												{% for key, value in demo_form.errors.items %}
+													<tr>
+														<td>
+																{{key}}{{ value }}
+														</td>
+													</tr>
+												{% endfor %}
+
+										</div>
+										<div class="modal-footer">
+											<input class="btn btn-robo-main" name="demo_form" type="submit" value="demo"/>
+											<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+						<div class="row">
+							<div class="col text-center">
+								OR SIGN IN BELOW
+							</div>
+						</div>
+						<form enctype="multipart/form-data" action="" method="post">
+						  {% csrf_token %}
+							<div class="form-group">
+								<label for="exampleInputEmail1">User Name</label>
+								<input type="text" class="form-control" name=username id="id_username" aria-describedby="emailHelp" placeholder="username">
+							</div>
+							<div class="form-group">
+								<label for="exampleInputPassword1">Password</label>
+								<input type="password" class="form-control" name="password" id="id_password" placeholder="Password">
+							</div>
+							<div class="custom-control custom-checkbox mb-3">
+								<input type="checkbox" class="custom-control-input" id="keep-signed-in">
+								<label class="custom-control-label" for="keep-signed-in">Keep Me Signed In</label>
+							</div>
+							<button type="submit" name="signin_form" class="btn btn-robo btn-gradient btn-block">
+								<i class="batch-icon batch-icon-key"></i>
+								Sign In
+							</button>
+							<hr>
+							<p class="text-center">
+								Don't Have An Account? <a href="{% url 'accountmanager:signup' %}">Sign Up here</a>
+							</p>
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- SCRIPTS - REQUIRED START -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<!-- Bootstrap core JavaScript -->
+	<!-- JQuery -->
+	<script type="text/javascript" src="{% static 'assets/js/jquery/jquery-3.1.1.min.js' %}"></script>
+	<!-- Popper.js - Bootstrap tooltips -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/popper.min.js' %}"></script>
+	<!-- Bootstrap core JavaScript -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/bootstrap.min.js' %}"></script>
+	<!-- MDB core JavaScript -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/mdb.min.js' %}"></script>
+	<!-- Velocity -->
+	<script type="text/javascript" src="{% static 'assets/plugins/velocity/velocity.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/plugins/velocity/velocity.ui.min.js' %}"></script>
+	<!-- Custom Scrollbar -->
+	<script type="text/javascript" src="{% static 'assets/plugins/custom-scrollbar/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+	<!-- jQuery Visible -->
+	<script type="text/javascript" src="{% static 'assets/plugins/jquery_visible/jquery.visible.min.js' %}"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script type="text/javascript" src="{% static 'assets/js/misc/ie10-viewport-bug-workaround.js' %}"></script>
+
+	<!-- SCRIPTS - REQUIRED END -->
+
+	<!-- SCRIPTS - OPTIONAL START -->
+	<!-- Image Placeholder -->
+	<script type="text/javascript" src="{% static 'assets/js/misc/holder.min.js' %}"></script>
+	<!-- SCRIPTS - OPTIONAL END -->
+
+	<!-- QuillPro Scripts -->
+	<script type="text/javascript" src="{% static 'assets/js/scripts.js' %}"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+  	$("html").css("visibility", "visible");
+	});
+	</script>
+</body>
+</html>

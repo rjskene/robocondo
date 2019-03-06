@@ -1,0 +1,63 @@
+{% load widget_tweaks %}
+<div class="modal fade" id={{id}} tabindex="-1" role="dialog" aria-labelledby={{title_id}} aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered" role="document">
+    <div class="modal-content">
+      <form enctype="multipart/form-data" action="" method="post">
+        <div class="modal-header bg-dark">
+          <h5 class="modal-title" id="{{title_id}}">Create {{title}}</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+            {% csrf_token %}
+            <table class="table">
+              <tbody>
+                {% if form.non_field_errors %}
+                  <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="form-group">
+                {% for field in form.visible_fields %}
+                  <tr>
+                    <td class="align-middle">
+                      {{ field.label }}
+                    </td>
+                    <td class="align-middle">
+                    {% if form.is_bound %}
+                      {% if field.errors %}
+                        {% render_field field class="form-control is-invalid" %}
+                        {% for error in field.errors %}
+                          <div class="invalid-feedback">
+                            {{ error }}
+                          </div>
+                        {% endfor %}
+                      {% else %}
+                        {% render_field field class="form-control is-valid" %}
+                      {% endif %}
+                    {% else %}
+                      {% render_field field class="form-control" %}
+                    {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+                </div>
+                {% for field in form.hidden_fields %}
+                  <tr>
+                    {{ field }}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+        </div>
+        <div class="modal-footer">
+          <input class="btn btn-robo-main" name={{form_name}} type="submit" value="Create"/>
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

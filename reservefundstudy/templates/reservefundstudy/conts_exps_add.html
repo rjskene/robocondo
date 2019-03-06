@@ -1,0 +1,52 @@
+{% extends 'base-robocondo.html' %}
+{% load static %}
+{% load reservefundstudy_extras %}
+
+{% load widget_tweaks %}
+
+{% block content %}
+
+<form action="" method="post">
+  {% csrf_token %}
+
+  {% if messages %}
+  <ul class='messages list-unstyled'>
+    {% for message in messages %}
+    <li>
+      {{ message }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+    <div class="row">
+      <div class="col">
+        <div class="row">
+          <div class="col text-center">
+            <h2>Year</h2>
+          </div>
+          <div class="col text-center">
+            <h2>Contributions</h2>
+          </div>
+          <div class="col text-center">
+            <h2>Expenditures</h2>
+          </div>
+        </div>
+        {% for row in table %}
+          <div class="row">
+            <div class="col text-center">
+              {{ row.year|add:first_year }}
+            </div>
+            <div class="col text-center">
+              {{ row.cont.label }}: {{ row.cont }}
+            </div>
+            <div class="col text-center">
+              {{ row.exp.label }}: {{ row.exp }}
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <input type="submit" value="Save" />
+</form>
+
+{% endblock %}

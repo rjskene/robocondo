@@ -1,0 +1,270 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block headtags %}
+   <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.css" type="text/css" />
+   <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.js"></script>
+{% endblock %}
+
+
+{% block main %}
+<!-- Title -->
+<div class="row justify-content-center mb-3">
+  <div class="col-md-12">
+    <span class="border-top"></span>
+		<h1>Investment Plan</h1>
+	</div>
+</div>
+<!-- INFO ICONS -->
+
+
+<!-- Recommend GIC Purchases -->
+<div class="row mb-5">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header text-center">
+        Recommended GIC Purchases<br>
+      <small>As of {{ plan.date_added }}</small>
+      </div>
+      <div class="card-table table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="thead-light">
+            <tr>
+              <th class="text-left">Issuer</th>
+              <th class="text-left">Term</th>
+              <th class="text-center">Rate</th>
+              <th class="text-center">Amount</th>
+              <th class="text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for record in gic_recommends %}
+              <tr>
+                <td>
+                  {{record.gic.issuer}}
+                </td>
+                <td class="text-left">
+                  {{record.gic.term}}
+                </td>
+                <td class="text-center">
+                  {{record.gic.rate}}
+                </td>
+                <td class="text-center">
+                  {{record.amount}}
+                </td>
+                <a href="#"><td class="text-center">
+                  <button type="button" class="btn btn-info btn-sm">Purchase</button>
+                </td></a>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="text-center mb-5">
+          <button href="#" type="button" class="btn btn-info btn-lg">Purchase ALL</button>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+        <div class="card card-tile card-xs bg-white text-center">
+          <div class="card-body p-4">
+            <div class="tile-left">
+              <i class="batch-icon batch-icon-stamp-alt batch-icon-xxl"></i>
+            </div>
+            <div class="tile-right">
+              <div class="tile-number">DEMO</div>
+              <div class="tile-description">Investment Plan</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 col-lg-12 col-xl-12 my-5">
+        <div class="card card-tile card-xs bg-white text-center">
+          <div class="card-body p-4">
+            <!-- Accepts .invisible: Makes the items. Use this only when you want to have an animation called on it later -->
+            <div class="tile-left">
+              <i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+            </div>
+            <div class="tile-right">
+              <div class="tile-number">${{details.opening_balance}}</div>
+              <div class="tile-description">Reserve Fund Balance</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-12 col-lg-12 col-xl-12 my-5">
+        <div class="card card-tile card-xs bg-white text-center">
+          <div class="card-body p-4">
+            <div class="tile-left">
+              <i class="batch-icon batch-icon-book-lines batch-icon-xxl"></i>
+            </div>
+            <div class="tile-right">
+              <div class="tile-number">DEMO</div>
+              <div class="tile-description">Reserve Fund Study</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Forecast Investment View -->
+<div class="row mb-3">
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <small>Bank Account Balance</small>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-center">
+        {{ bank.div|safe }}
+        {{ bank.script|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <small>Investment Allocation</small>
+      </div>
+      <div class="card-body">
+        {{ allocation.div|safe }}
+        {{ allocation.script|safe }}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-5">
+  <div class="col-lg-12 pb-5">
+    <div class="card">
+      <div class="card-header">
+        Forecast<br>
+        <small>Account & Investment View</small>
+      </div>
+      <div class="card-table table-responsive">
+    		<div class="table-responsive">
+    			<table id="datatable-2" class="table table-datatable table-striped table-hover">
+    				<thead>
+    					<tr>
+    						<th rowspan="2">Month</th>
+    						<th class="text-center" rowspan="2">Bank Account</th>
+    						<th class="text-center" rowspan="2">Current Investments</th>
+    						<th class="text-center" rowspan="2">Maturities</th>
+                <th class="text-center" colspan="5">Investments</th>
+              </tr>
+              <tr>
+                  <th class="text-center">1 Year</th>
+                  <th class="text-center">2 Year</th>
+                  <th class="text-center">3 Year</th>
+                  <th class="text-center">4 Year</th>
+                  <th class="text-center">5 Year</th>
+              </tr>
+    				</thead>
+    				<tbody>
+              {% for record in forecast %}
+    					<tr>
+    						<td>{{ record.month }}</td>
+    						<td class="text-center">{{ record.bank_balance }}</td>
+    						<td class="text-center">{{ record.current_investments }}</td>
+                <td class="text-center">{{ record.maturities }}</td>
+    						<td class="text-center">{{ record.term_1 }}</td>
+    						<td class="text-center">{{ record.term_2 }}</td>
+                <td class="text-center">{{ record.term_3 }}</td>
+                <td class="text-center">{{ record.term_4 }}</td>
+                <td class="text-center">{{ record.term_5 }}</td>
+    					</tr>
+              {% endfor %}
+    				</tbody>
+    			</table>
+    		</div>
+      </div>
+    </div>
+	</div>
+</div>
+<!-- Forecast Study View -->
+<div class="row mb-3">
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <small>Contribution & Expenditures</small>
+      </div>
+      <div class="card-body">
+        {{ contsexps.div|safe }}
+        {{ contsexps.script|safe }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <small>Reserve Fund Total</small>
+      </div>
+      <div class="card-body">
+          {{ total.div|safe }}
+          {{ total.script|safe }}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row justify-content-center mb-5">
+  <div class="col-lg-10">
+    <div class="card">
+      <div class="card-header">
+        Study View
+      </div>
+      <div class="card-table table-responsive">
+    		<div class="table-responsive">
+    			<table id="datatable-1" class="table table-datatable table-striped table-hover">
+    				<thead>
+    					<tr>
+    						<th>Month</th>
+    						<th class="text-center">Opening Balance</th>
+    						<th class="text-center">Contributions</th>
+    						<th class="text-center">Expenditures</th>
+    						<th class="text-center">Interest</th>
+    						<th class="text-center">Closing Balance</th>
+    					</tr>
+    				</thead>
+    				<tbody>
+              {% for record in forecast %}
+    					<tr>
+    						<td>{{ record.month }}</td>
+    						<td class="text-center">{{ record.opening_balance }}</td>
+    						<td class="text-center">{{ record.contributions }}</td>
+                <td class="text-center">{{ record.expenditures }}</td>
+    						<td class="text-center">{{ record.interest }}</td>
+    						<td class="text-center">{{ record.closing_balance }}</td>
+    					</tr>
+              {% endfor %}
+    				</tbody>
+    			</table>
+    		</div>
+      </div>
+    </div>
+	</div>
+</div>
+
+{% endblock %}
+
+{% block datatable %}
+  <script>
+    $(document).ready(function() {
+        $('#datatable-1').DataTable( {
+          "aLengthMenu": [[12, 24, 60, -1], [12, 24, 60, "All"]],
+          "iDisplayLength": 12,
+          "bSort" : false,
+        } );
+    } );
+    $(document).ready(function() {
+        $('#datatable-2').DataTable( {
+          "bSort" : false,
+          "aLengthMenu": [[12, 24, 60, -1], [12, 24, 60, "All"]],
+          "iDisplayLength": 12
+        } );
+    } );
+  </script>
+{% endblock %}

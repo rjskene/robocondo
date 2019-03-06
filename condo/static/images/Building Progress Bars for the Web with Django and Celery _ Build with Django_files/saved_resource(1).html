@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<!-- saved from url=(0054)https://fiddle.jshell.net/czue/uf6fg3x7/34/show/light/ -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title></title>
+  
+  <meta name="robots" content="noindex, nofollow">
+  <meta name="googlebot" content="noindex, nofollow">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+  <script type="text/javascript" src="./dummy.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="./result-light.css">
+
+
+  <style id="compiled-css" type="text/css">
+      #progress-bar {
+  margin-top: 1em;
+}
+
+  </style>
+
+
+  <!-- TODO: Missing CoffeeScript 2 -->
+
+  <script type="text/javascript">
+
+
+    window.onload=function(){
+      
+function updateProgress(progressBarElement, progressBarMessageElement, progress) {
+  progressBarElement.style.width = progress.percent + "%";
+  progressBarMessageElement.innerHTML = progress.current + ' of ' + progress.total + ' processed.';
+}
+
+var trigger = document.getElementById('progress-bar-trigger');
+trigger.addEventListener('click', function(e) {
+  var bar = document.getElementById("progress-bar");
+  var barMessage = document.getElementById("progress-bar-message");
+  for (var i = 0; i < 11; i++) {
+    setTimeout(updateProgress, 500 * i, bar, barMessage, {
+      percent: 10 * i,
+      current: 10 * i,
+      total: 100
+    })
+  }
+})
+
+
+    }
+
+</script>
+
+</head>
+<body>
+    <div id="progress-wrapper">
+  <button id="progress-bar-trigger">Run</button>
+  <div id="progress-bar" style="background-color: blue; width: 0%;">&nbsp;</div>
+  <div id="progress-bar-message">Waiting for progress to start...</div>
+</div>
+
+
+  
+  <script>
+    // tell the embed parent frame the height of the content
+    if (window.parent && window.parent.parent){
+      window.parent.parent.postMessage(["resultsFrame", {
+        height: document.body.getBoundingClientRect().height,
+        slug: "uf6fg3x7"
+      }], "*")
+    }
+  </script>
+
+
+</body></html>

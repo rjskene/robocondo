@@ -1,0 +1,992 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load pyyc_filters %}
+
+{% block select_head %}
+  {{ form.media.css }}
+{% endblock %}
+
+{% block headtags %}
+   <link rel="stylesheet" href="http://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.css" type="text/css" />
+   <script src="http://cdn.pydata.org/bokeh/release/bokeh-1.0.2.min.js"></script>
+{% endblock %}
+
+{% block navbar-sub %}
+  {% include "pyyc/navbar.html" %}
+{% endblock %}
+
+{% block main %}
+<!-- ACTION BUTTONS -->
+<div id="Actions" class="row bg-white mb-5 align-items-center">
+  <div class="col-md-6 col-lg-6 col-xl-2">
+		<h2 class="pt-4 align-middle">Actions</h2>
+	</div>
+  <div class="col-md-6 col-lg-6 col-xl-3">
+    <div class="row justify-content-center">
+    <a id=update-data-button class="btn text-dark rounded-2 mr-2" href="{% url 'pyyc:update-data'%}" role="button">
+      <button type="button" class="btn btn-robo-head btn-lg btn-block">Update Yield Curve</button>
+    </a>
+    </div>
+	</div>
+  <div class="col-md-6 col-lg-6 col-xl-3">
+    <div class="row justify-content-center">
+      <a id=update-data-button class="btn text-dark rounded-2 mr-2" href="{% url 'gic_select:update-gics'%}" role="button">
+        <button type="button" class="btn btn-robo-head btn-lg btn-block">Update GIC Data</button>
+      </a>
+	 </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-3">
+    <div class="row justify-content-center">
+      <a id=update-data-button class="btn text-dark rounded-2 mr-2" href="{% url 'pyyc:run-forecasts'%}" role="button">
+        <button type="button" class="btn btn-robo-head btn-lg btn-block">Run Forecast</button>
+      </a>
+    </div>
+	</div>
+</div>
+
+<!-- Market Data -->
+<div id="MarketData" class="row justify-content-center">
+  <div class="col-md-12">
+    <span class="border-top"></span>
+		<h2>Market Data</h2>
+	</div>
+</div>
+<div class="row justify-content-left">
+  <div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-card-dark text-center">
+			<div class="card-body p-4">
+				<div class="tile-right">
+          <div class="tile-number">{{dataset_last_date}}</div>
+					<div class="tile-description">Last Date of Most Recent Dataset</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row justify-content-center mb-3">
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">Yield Curve as of {{ current.date }}</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-center">
+          {{ current.div|safe }}
+          {{ current.script|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">Overnight Rate Historical</div>
+      </div>
+      <div class="card-body">
+        <div class="d-flex justify-content-center">
+          {{ HOR.div|safe }}
+          {{ HOR.script|safe }}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-3 justify-content-center">
+  <div class="col-md-6 col-lg-6 col-xl-8">
+    <div class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">Yield Curve over Past 5 Years</div>
+      </div>
+      <div class="card-body">
+        {{ HYC.div|safe }}
+        {{ HYC.script|safe }}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- GIC Data -->
+<div id="GICs" class="row justify-content-center mt-5 mb-3">
+  <div class="col-md-12">
+    <span class="border-top"></span>
+		<h2>Latest GIC Data</h2>
+	</div>
+</div>
+<div class="row mb-5">
+  <div class="col-lg-12 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subheader" style="font-size:20px">{{gics_date}}</div>
+      </div>
+      <div class="card-table table-responsive">
+    		<div class="table-responsive">
+    			<table id="datatable-1" class="table table-datatable table-striped table-hover">
+    				<thead>
+    					<tr>
+    						<th class="text-left">Issuer</th>
+    						<th class="text-center">12</th>
+    						<th class="text-center">24</th>
+                <th class="text-center">36</th>
+                <th class="text-center">48</th>
+                <th class="text-center">60</th>
+              </tr>
+    				</thead>
+    				<tbody>
+              {% for gic in gic_table %}
+    					<tr>
+    						<td class="text-left">{{ gic.issuer }}</td>
+    						<td class="text-center">{{ gic.1 }}</td>
+                <td class="text-center">{{ gic.2 }}</td>
+    						<td class="text-center">{{ gic.3 }}</td>
+    						<td class="text-center">{{ gic.4 }}</td>
+                <td class="text-center">{{ gic.5 }}</td>
+    					</tr>
+              {% endfor %}
+    				</tbody>
+    			</table>
+    		</div>
+      </div>
+    </div>
+	</div>
+</div>
+
+<!-- Current Forecast -->
+<div id="MarketData" class="row mt-5 mb-3">
+  <div class="col-md-12">
+    <span class="border-top"></span>
+		<h2>Current Forecast</h2>
+	</div>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-card-dark text-center">
+			<div class="card-body p-4">
+				<div class="tile-right">
+          <div class="tile-number" style="font-size:16px">{{forecasts.current_forecast.name}}</div>
+					<div class="tile-description">Current Forecast</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  <div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-card-dark text-center">
+			<div class="card-body p-4">
+				<div class="tile-left">
+					<i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+				</div>
+				<div class="tile-right">
+          <div class="tile-number">{{forecasts.date_added}}</div>
+          <div class="tile-description">Date of Last Forecast Set</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  <div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-card-dark text-center" width="100px">
+			<div class="card-body p-4">
+        <div class="tile-left">
+					<i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+				</div>
+				<div class="tile-right">
+          <div class="tile-number">{{forecasts.end_date}}</div>
+          <div class="tile-description">Last Date in Recent Forecast Group</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="row mb-3">
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">Canadian Government Yields & Overnight Rate</div>
+      </div>
+      <div class="card-body">
+        {{ forecasts.current_forecast.YC.chart.div|safe }}
+        {{ forecasts.current_forecast.YC.chart.script|safe }}
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-6 col-xl-6">
+    <div class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">Guaranteed Investment Certificates & Prime</div>
+      </div>
+      <div class="card-body">
+        {{ forecasts.current_forecast.GIC.chart.div|safe }}
+        {{ forecasts.current_forecast.GIC.chart.script|safe }}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mb-5">
+  <div class="col-lg-12 pb-5">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-subheader" style="font-size:20px">Canadian Government Yields</div>
+      </div>
+      <div class="card-table table-responsive">
+    		<div class="table-responsive">
+    			<table id="datatable-1" class="table table-datatable table-striped table-hover">
+    				<thead>
+    					<tr>
+    						<th>Month</th>
+    						<th class="text-center">Overnight</th>
+    						<th class="text-center">3</th>
+    						<th class="text-center">6</th>
+                <th class="text-center">12</th>
+                <th class="text-center">24</th>
+                <th class="text-center">36</th>
+                <th class="text-center">48</th>
+                <th class="text-center">60</th>
+                <th class="text-center">84</th>
+                <th class="text-center">120</th>
+                <th class="text-center">300</th>
+              </tr>
+    				</thead>
+    				<tbody>
+              {% for date, record in forecasts.current_forecast.YC.table.items %}
+    					<tr>
+    						<td>{{ date }}</td>
+    						<td class="text-center">{{ record.rate }}</td>
+    						<td class="text-center">{{ record.three_month }}</td>
+                <td class="text-center">{{ record.six_month }}</td>
+    						<td class="text-center">{{ record.one_year }}</td>
+    						<td class="text-center">{{ record.two_year }}</td>
+                <td class="text-center">{{ record.three_year }}</td>
+                <td class="text-center">{{ record.four_year }}</td>
+                <td class="text-center">{{ record.five_year }}</td>
+                <td class="text-center">{{ record.seven_year }}</td>
+                <td class="text-center">{{ record.ten_year }}</td>
+                <td class="text-center">{{ record.twenty_five_year }}</td>
+    					</tr>
+              {% endfor %}
+    				</tbody>
+    			</table>
+    		</div>
+      </div>
+    </div>
+	</div>
+</div>
+
+<!--Selector -->
+<div id="Selector" class="row mt-5">
+  <div class="col-md-12">
+		<h2>Selector</h2><br>
+	</div>
+</div>
+<div class="row mb-5">
+  <div class="col-xl-12">
+    <div id="selector_card" class="card card-md">
+      <div class="card-header">
+        <div class="card-subheader">*Displays forecasts according to your selections</div>
+      </div>
+      <div class="card-body">
+        <form id="form" enctype="multipart/form-data" action="" method="post">
+            {% csrf_token %}
+            <!-- Top Forecasts -->
+            <div id="top_select" class="row justify-content-center align-items-center my-4 mb-5">
+              <div class="col-md-6 col-lg-6 col-xl-6">
+                <button id="select_top" type="button" class="btn btn-block btn-robo-head btn-lg" data-toggle="modal" data-target="#howmany_modal">
+                    Select the Top Forecasts
+                </button>
+              </div>
+            </div>
+            <!-- How Many Modal -->
+            <div class="modal fade" id="howmany_modal" tabindex="-1" role="dialog" aria-labelledby="howmany_modal_title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title" id="howmany_modal_title">How Many Forecasts to View?</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {% csrf_token %}
+                      <table class="table">
+                        <tbody>
+                          <div class="form-group">
+                            <!-- NUMBER FIELD -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.number.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.number.errors %}
+                                  {% render_field form.number class="form-control is-invalid" %}
+                                  {% for error in form.number.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.number class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.number class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                              <tr>
+                                <!-- HIDDEN FIELD FOR TOP FORECASTS -->
+                                {{ form.top_forecasts }}
+                              </tr>
+                          </div>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <input class="btn btn-robo-main" type="submit" name="forecast_filter" value="Submit">
+                      <button id="unselect_top" type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!-- OR -->
+            <div class="row justify-content-center align-items-center my-5">
+              <div id="or_spacer" class="col-md-6 col-lg-3 col-xl-3 text-center">
+                <div class="card-header no-border">OR</div>
+              </div>
+            </div>
+            <!-- Custom Selections -->
+            <div class="row justify-content-center align-items-center my-5">
+              <div class="col-xl-6">
+                <button type="button" class="btn btn-block btn-robo-head btn-lg mb-1" data-toggle="modal" data-target="#dataset_modal">
+    	                Customize Your Selections
+    	          </button>
+              </div>
+            </div>
+            <!-- DataSet Modal -->
+            <div class="modal fade" id="dataset_modal" tabindex="-1" role="dialog" aria-labelledby="dataset_modal_title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title" id="custom_modal_title">Select Desired Dataset Types</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {% csrf_token %}
+                      <table class="table">
+                        <tbody>
+                          {% if form.non_field_errors %}
+                            <div class="alert alert-danger" role="alert">
+                              {% for error in form.non_field_errors %}
+                                {{ error }}
+                              {% endfor %}
+                            </div>
+                          {% endif %}
+                          <div class="form-group">
+                            <!-- RAW FIELD -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.raw.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.raw.errors %}
+                                  {% render_field form.raw class="form-control is-invalid" %}
+                                  {% for error in form.raw.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.raw class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.raw class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- PC Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.pc.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.pc.errors %}
+                                  {% render_field form.pc class="form-control is-invalid" %}
+                                  {% for error in form.pc.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.pc class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.pc class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                          </div>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#exvar_modal">
+                        Next
+                      </button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!-- External Variable Modal -->
+            <div class="modal fade" id="exvar_modal" tabindex="-1" role="dialog" aria-labelledby="exvar_modal_title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title" id="exvar_modal_title">Select Desired External Variables</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {% csrf_token %}
+                      <table class="table">
+                        <tbody>
+                          <div class="form-group">
+                            <!-- INFLATION FIELD -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.inflation.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.inflation.errors %}
+                                  {% render_field form.inflation class="form-control is-invalid" %}
+                                  {% for error in form.inflation.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.inflation class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.inflation class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- GAP Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.output_gap.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.output_gap.errors %}
+                                  {% render_field form.output_gap class="form-control is-invalid" %}
+                                  {% for error in form.output_gap.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.output_gap class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.output_gap class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                          </div>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#dataset_modal">
+                        Back
+                      </button>
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#technique_modal">
+                        Next
+                      </button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!-- Technique Modal -->
+            <div class="modal fade" id="technique_modal" tabindex="-1" role="dialog" aria-labelledby="technique_modal_title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title" id="technique_modal_title">Select Desired Techniques</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {% csrf_token %}
+                      <table class="table">
+                        <tbody>
+                          <div class="form-group">
+                            <!-- VAR FIELD -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.var.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.var.errors %}
+                                  {% render_field form.var class="form-control is-invalid" %}
+                                  {% for error in form.var.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.var class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.var class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- VARMA Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.varma.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.varma.errors %}
+                                  {% render_field form.varma class="form-control is-invalid" %}
+                                  {% for error in form.varma.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.varma class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.varma class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- VECM Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.vecm.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.vecm.errors %}
+                                  {% render_field form.vecm class="form-control is-invalid" %}
+                                  {% for error in form.vecm.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.vecm class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.vecm class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                          </div>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#exvar_modal">
+                        Back
+                      </button>
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#parameter_modal">
+                        Next
+                      </button>
+                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                  </div>
+                </div>
+            </div>
+            <!-- Parameters Modal -->
+            <div class="modal fade" id="parameter_modal" tabindex="-1" role="dialog" aria-labelledby="parameter_modal_title" aria-hidden="true">
+              <div class="modal-dialog modal-dialog-centered" role="document">
+                <div class="modal-content">
+                    <div class="modal-header bg-dark">
+                      <h5 class="modal-title" id="parameter_modal_title">Select Desired Parameters</h5>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      {% csrf_token %}
+                      <table class="table">
+                        <tbody>
+                          <div class="form-group">
+                            <!-- P FIELD -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.p.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.p.errors %}
+                                  {% render_field form.p class="form-control is-invalid" %}
+                                  {% for error in form.p.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.p class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.p class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- Q Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.q.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.q.errors %}
+                                  {% render_field form.q class="form-control is-invalid" %}
+                                  {% for error in form.q.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.q class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.q class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- Seasons Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.seasons.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.seasons.errors %}
+                                  {% render_field form.seasons class="form-control is-invalid" %}
+                                  {% for error in form.seasons.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.seasons class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.seasons class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                            <!-- Deterministic Field -->
+                            <tr>
+                              <td class="align-middle">
+                                {{ form.deterministics.label }}
+                              </td>
+                              <td class="align-middle">
+                              {% if form.is_bound %}
+                                {% if form.deterministics.errors %}
+                                  {% render_field form.deterministics class="form-control is-invalid" %}
+                                  {% for error in form.deterministics.errors %}
+                                    <div class="invalid-feedback">
+                                      {{ error }}
+                                    </div>
+                                  {% endfor %}
+                                {% else %}
+                                  {% render_field form.deterministics class="form-control is-valid" %}
+                                {% endif %}
+                              {% else %}
+                                {% render_field form.deterministics class="form-control" %}
+                              {% endif %}
+                              </td>
+                            </tr>
+                          </div>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-robo-main" data-dismiss="modal" data-toggle="modal" data-target="#technique_modal">
+                        Back
+                      </button>
+                      <input class="btn btn-robo-main" type="submit" name="forecast_filter" value="Submit">
+                    </div>
+                  </div>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="row justify-content-center">
+  <div class="col-md-6 col-lg-6 col-xl-4">
+		<div class="card card-tile card-xs bg-warning bg-gradient text-center">
+			<div class="card-body p-4">
+				<div class="tile-left">
+					<i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+				</div>
+				<div class="tile-right">
+            <div class="tile-number">{{forecasts.count}}</div>
+            <div class="tile-description">Number of Forecasts Generated</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Forecasts -->
+<div id="Forecasts" class="row justify-content-center mt-1">
+  <div class="col-md-12">
+    <span class="border-top"></span>
+		<h2>Forecasts</h2><br>
+	</div>
+</div>
+{% for k, forecast in forecasts.objects.items %}
+<div class="row justify-content-center">
+  <div class="col-md-10 col-lg-12 col-xl-12 mb-5">
+    <div id="forecasts_card" class="card card-xl">
+    	<div class="card-header">
+    		 Forecast #{{ forecast.obj.id }} - {{forecast.obj.dataset.end_date}}
+    	</div>
+      <div class="card-body">
+        {% if forecast.obj.id == forecasts.current_forecast.object.id %}
+        <div class="row justify-content-center">
+          <div class="col-xl-6 bg-yellow text-center">
+            <h4>THIS IS THE CURRENT FORECAST</h4>
+          </div>
+        </div>
+        {% endif %}
+        <div class="row">
+          <table class="table table-md">
+            <thead>
+              <tr>
+                  <th class="text-center" colspan="5">Dataset</th>
+                  <th class="text-center" colspan="6">Technique</th>
+                  <th class="text-center" colspan="2">Data</th>
+              </tr>
+              <tr>
+                  <th>Type</th>
+                  <th class="text-center">Inflation</th>
+                  <th class="text-center">Gap</th>
+                  <th class="text-center">Diffs</th>
+                  <th></th>
+                  <th>Type</th>
+                  <th class="text-center">P</th>
+                  <th class="text-center">Q</th>
+                  <th class="text-center">Seasons</th>
+                  <th class="text-center">Deterministic</th>
+                  <th></th>
+                  <th>Process Time</th>
+                  <th class="text-center">RMSE</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  {% if forecast.obj.dataset.raw %}
+                    RAW
+                  {% elif forecast.obj.dataset.pc %}
+                    PC
+                  {% endif %}
+                </td>
+                <td class="text-center" >
+                  {{ forecast.obj.dataset|inf }}
+                </td>
+                <td class="text-center" >
+                  {{ forecast.obj.dataset|gap }}
+                </td>
+                <td class="text-center" >
+                  {{ forecast.obj.dataset|n_diffs }}
+                </td>
+                <td></td>
+                <td>
+                  {% if forecast.obj.technique.var %}
+                    VAR
+                  {% elif forecast.obj.technique.varma %}
+                    VARM
+                  {% elif forecast.obj.technique.vecm %}
+                    VECM
+                  {% endif %}
+                </td>
+                <td class="text-center" >
+                  {% if forecast.obj.technique.var %}
+                    {{ forecast.obj.technique.var.p }}
+                  {% elif forecast.obj.technique.varma %}
+                    {{ forecast.obj.technique.varma.p }}
+                  {% elif forecast.obj.technique.vecm %}
+                    {{ forecast.obj.technique.vecm.p }}
+                  {% endif %}
+                </td>
+                <td class="text-center" >
+                  {% if forecast.obj.technique.varma %}
+                    {{ forecast.obj.technique.varma.q }}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
+                <td class="text-center" >
+                  {% if forecast.obj.technique.vecm %}
+                    {{ forecast.obj.technique.vecm.seasons }}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
+                <td class="text-center">
+                  {% if forecast.obj.technique.vecm %}
+                    {{ forecast.obj.technique.vecm.deterministic }}
+                  {% else %}
+                    N/A
+                  {% endif %}
+                </td>
+                <td></td>
+                <td class="text-center">
+                  {{ forecast.obj.process_time|floatformat:"-3" }}
+                </td>
+                <td class="text-center">
+                  {{ forecast.obj.total_rmse|floatformat:"-5" }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="row my-5 justify-content-center">
+          <div class="col-xl-5">
+            {{ forecast.YC.div|safe }}
+            {{ forecast.YC.script|safe }}
+          </div>
+          <div class="col-xl-5">
+            {{ forecast.GIC.div|safe }}
+            {{ forecast.GIC.script|safe }}
+          </div>
+        </div>
+        {% with x=forloop.counter0|stringformat:"s" %}
+        <!-- Current Select -->
+        <div class="row justify-content-center align-items-center my-5">
+          <div class="col-md-6 col-lg-6 col-xl-6">
+            {% with select_id="select_current"|add:x %}
+            {% with currentsure_modal="#currentsure_modal"|add:x %}
+            <button id={{select_id}} type="button" class="btn btn-block btn-robo-head btn-lg mb-1 select_current" data-toggle="modal" data-target={{currentsure_modal}}>
+                Set as Current?
+            </button>
+            {% endwith %}
+            {% endwith %}
+          </div>
+        </div>
+        <!-- Current Sure Modal -->
+        <form id="form" enctype="multipart/form-data" action="" method="post">
+          {% with currentsure_modal_id="currentsure_modal"|add:x %}
+          <div class="modal fade" id={{currentsure_modal_id}} tabindex="-1" role="dialog" aria-labelledby="currentsure_modal_title" aria-hidden="true">
+          {% endwith %}
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header bg-dark">
+                  <h5 class="modal-title" id="currentsure_modal_title">Are You Sure?</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  {% csrf_token %}
+                      <div class="form-group">
+                        <!-- CURRENT FIELD -->
+                        <tr>
+                          <td class="align-middle">
+                          {% with current_class="current_class"|add:x %}
+                          {% if forecast.form.is_bound %}
+                            {% if forecast.form.current.errors %}
+                              {% render_field forecast.form.current  class="form-control is-invalid" %}
+                              {% for error in forecast.form.current.errors %}
+                                <div class="invalid-feedback">
+                                  {{ error }}
+                                </div>
+                              {% endfor %}
+                            {% else %}
+                              {% render_field forecast.form.current class="form-control is-valid" %}
+                            {% endif %}
+                          {% else %}
+                            {{ forecast.form.current|add_class:"form-control" }}
+                          {% endif %}
+                          {% endwith %}
+                          </td>
+                        </tr>
+                      </div>
+                </div>
+                <div class="modal-footer">
+                    {% with form_name="set_current"|add:x %}
+                    {% with unselect_id="unselect_current"|add:x %}
+                      <input class="btn btn-robo-main" type="submit" name={{form_name}} value="Yes">
+                      <button id={{unselect_id}} type="button" class="btn btn-secondary unselect_current" data-dismiss="modal">Cancel</button>
+                    {% endwith %}
+                    {% endwith %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+        {% endwith %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endfor %}
+{% endblock %}
+
+{% block datatable %}
+  <script>
+    $(document).ready(function() {
+        $("#datatable-1").DataTable( {
+          "aLengthMenu": [[12, 24, 60, -1], [12, 24, 60, "All"]],
+          "iDisplayLength": 12,
+          "bSort" : false,
+        } );
+    } );
+  </script>
+{% endblock %}
+
+{% block end_js %}
+<script>
+  $("#select_top").click(function() {
+    $("#id_top_forecasts").prop("checked", true);
+    $("#id_top_forecasts").hide();
+  });
+  $("#unselect_top").click(function() {
+    $("#id_top_forecasts").prop("checked", false);
+    $("#id_top_forecasts").show();
+  });
+
+  $("body").on("click", ".select_current", function() {
+    var i = $(this).attr("id");
+    var i = i[i.length -1];
+    console.log(i);
+    var id = ".current_class" + i;
+    $(id).prop("checked", true);
+    $(id).hide();
+  });
+  $("body").on("click", ".unselect_current", function() {
+    var i = $(this).attr("id");
+    var i = i[i.length -1];
+    var id = ".current_class" + i;
+    $(id).prop("checked", true);
+    $(id).hide();
+  });
+</script>
+
+{% endblock %}
+
+{% block select %}
+<script>
+  {{ form.media.js }}
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+<div class="row mb-5">
+		<div class="col-md-12">
+			<h2>Condominiums Under Management</h2>
+		</div>
+		<div class="col-md-12">
+			<div class="card-group">
+				{% for condo in object_list %}
+					<div class="card">
+						<img class="card-img-top" src="{% static 'images/toyfactory.jpg' %}" alt="Card image cap">
+						<div class="card-body">
+							<h4 class="card-title">{{condo.short_name}}</h4>
+							<li><a href="{% url 'condo:main' condo=condo.short_name condo_id=condo.id %}">{{ condo.name }}</a></li>
+						</div>
+						<div class="card-footer">
+							<small class="text-muted">Last updated 3 mins ago</small>
+						</div>
+					</div>
+				{% endfor %}
+
+					<div class="card">
+				</div>
+				<div class="card">
+			</div>
+			</div>
+		</div>
+	</div>
+{% endblock %}

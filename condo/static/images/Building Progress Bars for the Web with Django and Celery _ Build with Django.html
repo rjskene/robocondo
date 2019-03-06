@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<!-- saved from url=(0059)https://buildwithdjango.com/blog/post/celery-progress-bars/ -->
+<html class="fa-events-icons-ready"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <!--IE compatibility-->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <!--Mobile friendly-->
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+
+
+    <title>Building Progress Bars for the Web with Django and Celery | Build with Django</title>
+    <meta name="description" content="The surprising complexity of making something that is, on its surface, ridiculously simple">
+    <meta name="keywords" content="build with django, django, learn django, make web application">
+    <!-- Twitter Card data -->
+    <meta name="twitter:card" content="summary">
+
+    <meta name="twitter:site" content="@czue">
+
+    <meta name="twitter:title" content="Building Progress Bars for the Web with Django and Celery | Build with Django">
+    <meta name="twitter:description" content="The surprising complexity of making something that is, on its surface, ridiculously simple">
+    <meta name="twitter:image" content="https://buildwithdjango.com/static/blog/progress-bars/toy-line.jpg">
+
+    <!-- Open Graph data -->
+    <meta property="og:title" content="Building Progress Bars for the Web with Django and Celery | Build with Django">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://buildwithdjango.com/blog/post/celery-progress-bars/">
+    <meta property="og:image" content="https://buildwithdjango.com/static/blog/progress-bars/toy-line.jpg">
+    <meta property="og:description" content="The surprising complexity of making something that is, on its surface, ridiculously simple">
+    <meta property="og:site_name" content="Build with Django">
+
+
+    <link rel="shortcut icon" href="https://buildwithdjango.com/static/images/favicon.ico">
+    <link rel="canonical" href="https://buildwithdjango.com/blog/post/celery-progress-bars/">
+
+
+
+
+    <link rel="stylesheet" href="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/build-with-django.css">
+    <script async="" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/analytics.js"></script><script src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/c0df89ba19.js"></script><link href="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/c0df89ba19.css" media="all" rel="stylesheet">
+    
+    <script>
+      // google analytics
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+      ga('create', 'UA-94102737-5', 'auto');
+      ga('send', 'pageview');
+    </script>
+    
+    
+  <link href="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/code-highlight.css" rel="stylesheet">
+  <link rel="stylesheet" href="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/default.min.css">
+<script src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/highlight.min.js"></script>
+
+  <script>
+      document.addEventListener("DOMContentLoaded", function () {
+          var codeBlocks = document.querySelectorAll('.python, .javascript, .html');
+          for (var i = 0; i < codeBlocks.length; i++) {
+              hljs.highlightBlock(codeBlocks[i]);
+          }
+      });
+  </script>
+
+<style type="text/css">#mc_embed_signup input.mce_inline_error { border-color:#6B0505; } #mc_embed_signup div.mce_inline_error { margin: 0 0 1em 0; padding: 5px 10px; background-color:#6B0505; font-weight: bold; z-index: 1; color:#fff; }</style></head>
+<body style="zoom: 1;">
+
+
+
+<section class="hero is-info is-bold has-text-centered">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        <a href="https://buildwithdjango.com/">Build With Django</a>
+          
+      </h1>
+      <h2 class="subtitle">
+        Learn to make Django applications from practical, real-world examples.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+    <div class="container narrow">
+        <h1 class="title">Building Progress Bars for the Web with Django and Celery</h1>
+        <p class="subtitle">The surprising complexity of making something that is, on its surface, ridiculously simple</p>
+
+    <div class="content">
+        <p><img alt="Toy Line" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/toy-line.jpg">
+</p><figcaption>Photo by <a href="https://unsplash.com/photos/vHn0JnxFMP8?utm_source=unsplash&amp;utm_medium=referral&amp;utm_content=creditCopyText">Patrick Fore</a> on Unsplash</figcaption><p></p>
+<p>Progress bars are one of the most common, familiar UI components in our lives.
+We see them every time we download a file, install software, or attach something to an email.
+They live in our browsers, on our phones, and even on our TVs.</p>
+<p>And yet—making a good progress bar is a surprisingly complex task!</p>
+<p>In this post I'll describe all of the components of making a quality progress bar for the web,
+and hopefully by the end you'll have a good understanding of everything you'd need to build your own.</p>
+<p>This post describes everything I had to learn (and some things I didn't!) to make
+<a href="https://github.com/czue/celery-progress">celery-progress</a>, a library that hopefully makes it
+easy to drop in dependency-free progress bars to your Django/Celery applications.</p>
+<p>That said, most of the concepts in this post should translate across all languages/environments,
+so even if you don't use Python you probably can learn something new.</p>
+<h2>Why Progress Bars?</h2>
+<p>This might be obvious, but just to get it out of the way—why do we use progress bars?</p>
+<p>The basic reason is to provide users feedback for something that takes longer than they are used to waiting.
+According to <a href="https://blog.kissmetrics.com/loading-time/">kissmetrics</a>,
+40% of people abandon a website that takes more than 3 seconds to load!
+And while you can use something like a spinner to help mitigate this wait, a tried and true way to communicate
+to your users while they're waiting for something to happen is to use a progress bar.</p>
+<p>Generally progress bars are great <em>whenever something takes longer than a few seconds
+and you can reasonably estimate its progress over time</em>.</p>
+<p><img alt="Screenshot" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/pb-screenshot.png">
+</p><figcaption>Progress bars can be used to show the status of something and its result</figcaption><p></p>
+<p>Some examples include:</p>
+<ul>
+<li>When your application first loads (if it takes a long time to load)</li>
+<li>When processing a large data import</li>
+<li>When preparing a file for download</li>
+<li>When the user is in a queue waiting for their request to get processed</li>
+</ul>
+<h2>The Components of a Progress Bar</h2>
+<p>Alright, with that out of the way lets get into how to actually build these things!</p>
+<p>It's just a little bar filling up across a screen. How complicated could it be?</p>
+<p>Actually, quite!</p>
+<p>The following components are typically a part of any progress bar implementation:</p>
+<ol>
+<li>A <em>front-end</em>, which typically includes a visual representation of progress and (optionally) a text-based status.</li>
+<li>A <em>backend</em> that will actually do the work that you want to monitor.</li>
+<li>One or more communication channels for the front end to hand off work to the backend.</li>
+<li>One or more communication channels for the backend to communicate progress to the front-end.</li>
+</ol>
+<p>Immediately we can see one inherent source of complexity.
+We want to both <em>do some work</em> in the backend and <em>show that work</em> happening on the frontend.
+This immediately means we will be involving multiple processes that need to interact with each other asynchronously.</p>
+<p>These communication channels are where much of the complexity lies.
+In a relatively standard Django project, the <em>front-end browser</em> might submit an AJAX HTTP request (JavaScript)
+to the <em>backend web app</em> (Django) which in turn might pass that request along to the <em>task queue</em> (Celery)
+via a <em>message broker</em> (RabbitMQ/Redis).
+Then the whole thing needs to happen in reverse to get information back to the front end!</p>
+<p>The entire process might look something like this:</p>
+<p><img alt="Progress Bar Diagram" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/pb-diagram.png">
+</p><figcaption>The big picture of everything involved in making a good progress bar</figcaption><p></p>
+<p>Let's dive into all of these components and see how they work in a practical example.</p>
+<h2>The Front End</h2>
+<p>The front end is definitely the easiest part of the progress bar.
+With just a few small lines of HTML/CSS you can quickly make a decent looking horizontal bar using the
+background color and width attributes.
+Splash in a little JavaScript to update it and you're good to go!</p>
+<iframe width="100%" height="300" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/saved_resource.html" allowpaymentrequest="" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+<figcaption>A very basic progress bar implementation in pure HTML/JavaScript</figcaption>
+
+<h2>The Backend</h2>
+<p>The backend is equally simple.
+This is essentially just some code that's going to execute on your server to do the work you want to track.
+This would typically be written in whatever application stack you're using (in this case Python and Django).
+Here's an overly simplified version of what the backend might look like:</p>
+<pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">do_work</span><span class="hljs-params">(self, list_of_work)</span>:</span>
+    <span class="hljs-keyword">for</span> work_item <span class="hljs-keyword">in</span> list_of_work:
+        do_work_item(work_item)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'work is complete'</span>
+</code></pre>
+
+<figcaption>Hypothetical work-doing function</figcaption>
+
+<h2>Doing the Work</h2>
+<p>Okay so we've got our front-end progress bar, and we've got our work doer. What's next?</p>
+<p>Well, we haven't actually said anything about how this work will get kicked off. So let's start there.</p>
+<h3>The Wrong Way: Doing it in the Web Application</h3>
+<p>In a typical ajax workflow this would work the following way:</p>
+<ol>
+<li>Front-end initiates request to web application</li>
+<li>Web application does work in the request</li>
+<li>Web application returns a response when done</li>
+</ol>
+<p>In a Django view that would look something like this:</p>
+<pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_view</span><span class="hljs-params">(request)</span>:</span>
+     do_work()
+     <span class="hljs-keyword">return</span> HttpResponse(<span class="hljs-string">'work done!'</span>)
+</code></pre>
+
+<figcaption>The wrong way: calling the function from the view</figcaption>
+
+<p>The problem here is that the <code>do_work</code> function might do a lot of work that takes a long time
+(if it didn't, it wouldn't make sense to add a progress bar for it).</p>
+<p>Doing a lot of work in a view is generally considered a bad practice for several reasons, including:</p>
+<ul>
+<li>You create a poor user experience, since people have to wait for long requests to finish</li>
+<li>You open your site up to potential stability issues with lots of long-running, work-doing requests
+  (which could be triggered either maliciously or accidentally)</li>
+</ul>
+<p>For these reasons, and others, we need a better approach for this.</p>
+<h3>The Better Way: Asynchronous Task Queues (aka Celery)</h3>
+<p>Most modern web frameworks have created <em>asynchronous task queues</em> to deal with this problem.
+In Python the most common one is <a href="http://www.celeryproject.org/">Celery</a>.
+In Rails there is <a href="https://sidekiq.org/">Sidekiq</a>
+(<a href="http://blog.scoutapp.com/articles/2016/02/16/which-ruby-background-job-framework-is-right-for-you">among others</a>).
+The details between these vary, but the fundamental principles of them are the same.
+Basically, instead of doing work in an HTTP request that could take arbitrary long—and be triggered with arbitrary frequency—you
+stick that work in a queue and you have background processes—often referred to as <em>workers</em>—that pick the jobs up and execute them.</p>
+<p>This asynchronous architecture has several benefits, including:</p>
+<ul>
+<li>Not doing long-running work in web processes</li>
+<li>Enabling rate-limiting of the work done—work can be limited by the number of worker-processes available</li>
+<li>Enabling work to happen on machines that are optimized for it, for example, machines with high numbers of CPUs</li>
+</ul>
+<h3>The Mechanics of How this Works</h3>
+<p>The basic mechanics of this are relatively simple, and involve three main components:
+<em>the client(s)</em>, the <em>worker(s)</em>, and the <em>message broker</em>.</p>
+<p>The <em>client</em> is primarily responsible for the creation of new tasks.
+In our example, the client is the Django application, which creates tasks on user input via a web request.</p>
+<p>The <em>workers</em> are the actual processes that do the work. These are our Celery workers.
+You can have an arbitrary number of workers running on arbitrary many machines,
+which allows for high availability and horizontal scaling of task processing.</p>
+<p>The client and task queue talk to each other via a <em>message broker</em>,
+which is responsible for accepting tasks from the client(s) and delivering them to the worker(s).
+The most common message broker for Celery is RabbitMQ, although Redis is also a commonly used and feature complete message broker.</p>
+<p><img alt="Asynchronous Task Architecture" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/async-task-architecture.png">
+</p><figcaption>Basic workflow of passing messages to an asynchronous worker process</figcaption><p></p>
+<p>When building a standard celery application you will typically do development of the client and worker code,
+but the message broker will be a piece of infrastructure that you just have to stand up but beyond that can (mostly) ignore.</p>
+<h4>Example</h4>
+<p>While this all sounds rather complicated, Celery does a good job making it quite easy for us via nice programming abstractions.</p>
+<p>To convert our work-doing function to something that can be executed asynchronously, all we have to do is add a special decorator:</p>
+<pre><code class="python hljs"><span class="hljs-keyword">from</span> celery <span class="hljs-keyword">import</span> task
+
+<span class="hljs-comment"># this decorator is all that's needed to tell celery this is a worker task</span>
+<span class="hljs-meta">@task</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">do_work</span><span class="hljs-params">(self, list_of_work)</span>:</span>
+    <span class="hljs-keyword">for</span> work_item <span class="hljs-keyword">in</span> list_of_work:
+        do_work_item(work_item)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'work is complete'</span>
+</code></pre>
+
+<figcaption>Annotating a work function to be called from Celery</figcaption>
+
+<p>Similarly, calling the function asynchronously from the Django client is similarly straightforward:</p>
+<pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">my_view</span><span class="hljs-params">(request)</span>:</span>
+     <span class="hljs-comment"># the .delay() call here is all that's needed</span>
+     <span class="hljs-comment"># to convert the function to be called asynchronously</span>
+     do_work.delay()
+     <span class="hljs-comment"># we can't say 'work done' here anymore because all we did was kick it off</span>
+     <span class="hljs-keyword">return</span> HttpResponse(<span class="hljs-string">'work kicked off!'</span>)
+</code></pre>
+
+<figcaption>Calling the work function asynchronously</figcaption>
+
+<p>With just a few extra lines of code we've converted our work to an asynchronous architecture!
+As long as you've got your worker and broker processes configured and running this should <em>just work</em>.</p>
+<h2>Tracking the Progress</h2>
+<p>Alrighty, so we've finally got our task running in the background.
+But now we want to track progress on it. So how does that work, exactly?</p>
+<p>We'll again need to do a few things.
+First we'll need a way of tracking progress within the worker job.
+Then we'll need to communicate that progress all the way back to our front-end so we can update the progress bar on the page.
+Once again, this ends up being quite a bit more complicated than you might think!</p>
+<h3>Using an Observer Object to Track Progress in the Worker</h3>
+<p>Readers of the seminal <a href="https://www.amazon.com/gp/product/0201633612/?tag=czue09-20">Gang of Four's Design Patterns</a>
+might be familiar with the <a href="https://en.wikipedia.org/wiki/Observer_pattern">observer pattern</a>.
+The typical observer pattern includes a <em>subject</em> which tracks state,
+as well as one or more <em>observers</em> that do something in response to state.
+In our progress scenario, the subject is the worker process/function that is doing the work,
+and the observer is the thing that is going to track the progress.</p>
+<p>There are many ways to link the subject and the observer,
+but the simplest is to just pass the observer in as an argument to the function doing the work.</p>
+<p>That looks something like this:</p>
+<pre><code class="python hljs"><span class="hljs-meta">@task</span>
+<span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">do_work</span><span class="hljs-params">(self, list_of_work, progress_observer)</span>:</span>
+    total_work_to_do = len(list_of_work)
+    <span class="hljs-keyword">for</span> i, work_item <span class="hljs-keyword">in</span> enumerate(list_of_work):
+        do_work_item(work_item)
+        <span class="hljs-comment"># tell the progress observer how many out of the total items we have processed</span>
+        progress_observer.set_progress(i, total_work_to_do)
+    <span class="hljs-keyword">return</span> <span class="hljs-string">'work is complete'</span>
+</code></pre>
+
+<figcaption>Using an observer to monitor work progress</figcaption>
+
+<p>Now all we have to do is pass in a valid <code>progress_observer</code> and voila, our progress will be tracked!</p>
+<h3>Getting Progress Back to the Client</h3>
+<p>You might be thinking <em>"wait a minute… you just called a function called set_progress, you didn't actually do anything!"</em></p>
+<p>True! So how does this <em>actually</em> work?</p>
+<p>Remember—our goal is to get this progress information all the way up to the webpage so we can show our users what's going on.
+But the progress tracking is happening all the way in the worker process!
+We are now facing a similar problem we had with handing off the asynchronous task earlier.</p>
+<p>Thankfully Celery also provides a mechanism for passing messages <em>back</em> to the client.
+This is done via a mechanism called <a href="http://docs.celeryproject.org/en/latest/userguide/tasks.html#result-backends">result backends</a>,
+and, like <a href="http://docs.celeryproject.org/en/latest/getting-started/brokers/">brokers</a>,
+you have the option of several different backends.
+Both RabbitMQ and Redis can be used as brokers and result backends and are reasonable choices,
+though there is technically no coupling between the broker and the result backend.</p>
+<p>Anyway, like brokers, the details typically don't come up unless you're doing something pretty advanced,
+but the point is that you stick the result from the task <em>somewhere</em> (with the task's unique ID),
+and then other processes can get information about tasks by ID by asking the backend for it.</p>
+<p>In Celery this is abstracted quite well via the <code>state</code> associated with the task.
+The <code>state</code> allows us to set an overall status, as well as attach arbitrary metadata to the task.
+This is a perfect place to store our current and total progress.</p>
+<pre><code class="python hljs">task.update_state(
+    state=PROGRESS_STATE,
+    meta={
+        <span class="hljs-string">'current'</span>: current,
+        <span class="hljs-string">'total'</span>: total,
+    }
+)
+</code></pre>
+
+<figcaption>Setting the state</figcaption>
+
+<pre><code class="python hljs"><span class="hljs-keyword">from</span> celery.result <span class="hljs-keyword">import</span> AsyncResult
+result = AsyncResult(task_id)
+print(result.state)  <span class="hljs-comment"># will be set to PROGRESS_STATE</span>
+print(result.info)  <span class="hljs-comment"># metadata will be here</span>
+</code></pre>
+
+<figcaption>Reading the state</figcaption>
+
+<h2>Getting Progress Updates to the Front End</h2>
+<p>Now that we can get progress updates out of the workers / tasks and into any other client,
+the final step is to just get that information to the front end and display it to the user.</p>
+<p>If you want to get fancy you can use something like websockets to do this in real time,
+but the simplest version is to just poll a URL every so often to check on progress.
+We can just serve the progress information up as JSON via a Django view and process and render it client-side.</p>
+<p>Django view:</p>
+<pre><code class="python hljs"><span class="hljs-function"><span class="hljs-keyword">def</span> <span class="hljs-title">get_progress</span><span class="hljs-params">(request, task_id)</span>:</span>
+    result = AsyncResult(task_id)
+    response_data = {
+        <span class="hljs-string">'state'</span>: result.state,
+        <span class="hljs-string">'details'</span>: result.info,
+    }
+    <span class="hljs-keyword">return</span> HttpResponse(json.dumps(response_data), content_type=<span class="hljs-string">'application/json'</span>)
+</code></pre>
+
+<figcaption>Django view to return progress as JSON</figcaption>
+
+<p>Django URL config:</p>
+<pre><code class="python hljs">urlpatterns = [
+    <span class="hljs-comment"># other url configs here here... </span>
+    url(<span class="hljs-string">r'^(?P&lt;task_id&gt;[\w-]+)/$'</span>, views.get_progress, name=<span class="hljs-string">'task_status'</span>)
+]
+</code></pre>
+
+<figcaption>Django URL config for the progress URL</figcaption>
+
+<p>JavaScript code:</p>
+<pre><code class="javascript hljs"><span class="hljs-function"><span class="hljs-keyword">function</span> <span class="hljs-title">updateProgress</span> (<span class="hljs-params">progressUrl</span>) </span>{
+    fetch(progressUrl).then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">response</span>) </span>{
+        response.json().then(<span class="hljs-function"><span class="hljs-keyword">function</span>(<span class="hljs-params">data</span>) </span>{
+            <span class="hljs-comment">// update the appropriate UI components</span>
+            setProgress(data.state, data.details);
+            setTimeout(updateProgress, <span class="hljs-number">500</span>, progressUrl);
+        });
+    });
+}
+<span class="hljs-keyword">var</span> progressUrl = <span class="hljs-string">'{% url "task_status" task_id %}'</span>;  <span class="hljs-comment">// django template usage</span>
+updateProgress(progressUrl);
+</code></pre>
+
+<figcaption>Javascript code to poll for progress and update the UI</figcaption>
+
+<h2>Putting it All Together</h2>
+<p>This has been quite a lot of detail on what is—on its face—a very simple and everyday part of our lives with computers!
+I hope you've learned something.</p>
+<p>If you need a simple way to make progress bars for you django/celery applications you can check out
+<a href="https://github.com/czue/celery-progress">celery-progress</a>—a library I wrote to help make all of this a bit easier.
+There is also <a href="https://buildwithdjango.com/projects/celery-progress/">a demo of it in action</a>.</p>
+<p>Questions? Comments? <a href="mailto:cory@coryzue.com">Drop me a line</a> and I'll be happy to respond.</p>
+<p>If you'd like to get notified whenever I publish content like this on building things with Python and Django,
+please sign up to receive updates below!</p>
+    </div>
+</div>
+</section>
+<section class="hero is-info">
+    <div class="hero-body">
+        <div class="container">
+            <div class="columns">
+                <div class="column">
+                    <h1 class="title">Level Up your Django Game</h1>
+                    <h2 class="subtitle">
+                        Follow this page to get updates, content and other goodies about building SaaS applications with Django.
+                        No spam. Unsubscribe anytime.
+                    </h2>
+                </div>
+                <div class="column">
+                    <!-- Begin MailChimp Signup Form -->
+<div id="mc_embed_signup">
+    <form action="https://czue.us12.list-manage.com/subscribe/post?u=8e1e2dbe516505b5e7cc058ab&amp;id=625eeb049c" method="post" id="mc-embedded-subscribe-form" name="mc-embedded-subscribe-form" class="validate" target="_blank" novalidate="novalidate">
+        <input type="hidden" value="/blog/post/celery-progress-bars/" name="FPAGE" class="input" id="mce-FPAGE">
+        <div id="mc_embed_signup_scroll">
+            <div class="mc-field-group field">
+                <p class="control has-icon">
+                    <input type="text" value="" name="FNAME" class="input" id="mce-FNAME" placeholder="First Name">
+                    <span class="icon">
+                        <i class="fa fa-user"></i>
+                    </span>
+                </p>
+            </div>
+            <div class="mc-field-group field">
+                <p class="control has-icon">
+                    <input type="email" value="" name="EMAIL" class="input required email" id="mce-EMAIL" placeholder="Email Address" aria-required="true">
+                    <span class="icon">
+                        <i class="fa fa-envelope-o"></i>
+                    </span>
+                </p>
+            </div>
+            <div id="mce-responses" class="clear">
+                <div class="response" id="mce-error-response" style="display:none"></div>
+                <div class="response" id="mce-success-response" style="display:none"></div>
+            </div>
+            <div class="clear">
+                <input type="submit" value="Sign Me Up!" name="subscribe" id="mc-embedded-subscribe" class="button is-white is-outlined">
+            </div>
+        </div>
+    </form>
+</div>
+<script type="text/javascript" src="./Building Progress Bars for the Web with Django and Celery _ Build with Django_files/mc-validate.js"></script>
+<script type="text/javascript">(function ($) {
+    window.fnames = new Array();
+    window.ftypes = new Array();
+    fnames[0] = 'EMAIL';
+    ftypes[0] = 'email';
+    fnames[1] = 'FNAME';
+    ftypes[1] = 'text';
+}(jQuery));
+var $mcj = jQuery.noConflict(true);
+// google analytics: https://developers.google.com/analytics/devguides/collection/analyticsjs/sending-hits
+var form = document.getElementById('mc-embedded-subscribe-form');
+form.addEventListener('submit', function(event) {
+  // mailchimp is actually handling everything in its own event listener so all you need to do is
+  // log the GA event and not worry about the form submission business
+  ga('send', 'event', 'Newsletter Signup Form', 'submit', {});
+});
+</script>
+<!--End mc_embed_signup-->
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="content has-text-centered">
+      <p>
+          <strong><a href="https://buildwithdjango.com/">Build With Django</a></strong> is a work in progress from <a href="http://www.coryzue.com/" target="_blank">Cory Zue</a>.
+      </p>
+      <p>
+          <a class="button is-info" href="https://buildwithdjango.com/about/">Learn More</a>
+      </p>
+    </div>
+  </div>
+</footer>
+
+
+
+
+
+
+</body></html>

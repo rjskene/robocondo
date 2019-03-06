@@ -1,0 +1,15 @@
+{% extends 'base-robocondo.html' %}
+
+{% block content %}
+
+<div class="form-background p-5">
+  <div class="container-fluid bg-light text-center w-50">
+    <h2>Login</h2>
+    <form method="post">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit">Login</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

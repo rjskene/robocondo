@@ -1,0 +1,564 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+{% load condo_tags %}
+
+{% block main %}
+<div id=condo_subtitle value="CondoSubtitle" hidden></div>
+<div class="row">
+	<!-- Toastr Messages -->
+  {% if messages %}
+  <ul class='messages list-unstyled'>
+    {% for message in messages %}
+      {% if "error_warning" in message.extra_tags %}
+        <li id="error_message" value="{{message}}">
+        </li>
+      {% elif "submit_success" in message.extra_tags %}
+        <li id="submit_success" value="{{message}}">
+        </li>
+      {% else %}
+        {{ message }}
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+	<!-- Header Cards -->
+	<div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-gradient text-center">
+			<div class="card-body p-4">
+				<!-- Accepts .invisible: Makes the items. Use this only when you want to have an animation called on it later -->
+				<div class="tile-left">
+					<i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+				</div>
+				<div class="tile-right">
+					<div class="tile-number">{{balance}}</div>
+					<div class="tile-description">Reserve Fund Balance</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-card-dark text-center">
+			<div class="card-body p-4">
+				<div class="tile-left">
+					<i class="batch-icon batch-icon-book-lines batch-icon-xxl"></i>
+				</div>
+				<div class="tile-right">
+					<div class="tile-number">{{study.date}}</div>
+					<div class="tile-description">Reserve Fund Study</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-6 col-lg-6 col-xl-4 mb-5">
+		<div class="card card-tile card-xs bg-gradient text-center">
+			<div class="card-body p-4">
+        {% if plan %}
+  				<div class="tile-left">
+            <a href="{% url 'investmentplan:plan-main' condo=condo condo_id=condo.id rfs_id=study.id plan_id=plan.id %}">
+  			       <i class="batch-icon batch-icon-stamp-alt batch-icon-xxl"></i>
+            </a>
+  				</div>
+  				<div class="tile-right">
+  					<div class="tile-number">{{plan.date_added}}</div>
+  					<div class="tile-description">Investment Plan</div>
+  				</div>
+        {% elif study %}
+          <div class="tile-left">
+            <i class="batch-icon batch-icon-delete batch-icon-xxl text-danger"></i>
+          </div>
+          <div class="tile-right">
+            There is No Investment Plan for this Study
+            <a href="{% url 'investmentplan:run-robocondo' condo=condo condo_id=condo.id rfs_id=study.id %}">
+              <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#createPlanModal">Click Here to Make One</button>
+            </a>
+          </div>
+        {% else %}
+          <div class="tile-left">
+          <i class="batch-icon batch-icon-delete batch-icon-xxl text-danger"></i>
+          </div>
+          <div class="tile-right">
+            You have not input a Reserve Fund Study
+            <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#createstudymodal">
+              Click Here To Make One
+            </button>
+          </div>
+        {% endif %}
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Bank Accounts -->
+<div class="row">
+  <!-- Bank Accounts Table -->
+  <div class="col-md-10 col-lg-12 col-xl-10 mb-5">
+  	<div id="accounts_card" class="card card-md">
+  		<div class="card-header">
+  			Bank Accounts
+  		</div>
+  		<div class="card-body">
+        <div class="col-md-12 pb-1">
+					<table class="table table-hover">
+						<thead class="thead-light">
+							<tr>
+                <th>Type</th>
+                <th class="text-center">Institution</th>
+                <th class="text-center">Account Number</th>
+                <th class="text-center">Spread</th>
+                <th class="text-center">Balance</th>
+                <th class="text-center">Date</th>
+                <th></th>
+                <th></th>
+							</tr>
+						</thead>
+						<tbody>
+              {% if accounts %}
+                {% for account_id, values in accounts.items %}
+                  {% if not values.table.insured %}
+                  <tr class="border-red">
+                  {% else %}
+                  <tr>
+                  {% endif %}
+                    <td class="text-left">{{ values.table.type }}</td>
+                    <td class="text-center">{{ values.table.institution }}</td>
+                    <td class="text-center">{{ values.table.account_number }}</td>
+                    <td class="text-center">{{ values.table.spread }}</td>
+                    <td class="text-right pr-5">
+											{% if values.table.balance %}
+												{{ values.table.balance }}
+											{% endif %}
+										</td>
+                    <td class="text-center">
+											{% if values.table.balance %}
+												{{ values.table.balance_date}}
+											{% endif %}
+										</td>
+										<td class="align-middle">
+											<!-- Account Update: Button trigger modal -->
+										{% with x=account_id|stringformat:"s" %}
+											{% with target="#updateaccountmodal"|add:x %}
+												<button type="button" class="btn btn-block btn-robo btn-sm mb-1" data-toggle="modal" data-target="{{target}}">
+	                        Info
+	                      </button>
+											{% endwith %}
+	                    <!-- Account UPDATE Modal -->
+											{% update_modal type="account" form_number=x form=values.table.update_account_form %}
+											<!-- BANK BALANCE: Button trigger modal -->
+											{% with target="#createBalanceModal"|add:x %}
+											<button type="button" class="btn btn-block btn-robo btn-sm" data-toggle="modal" data-target="{{target}}">
+											  Balance
+											</button>
+											{% endwith %}
+												<!-- BANK BALANCE UPDATE MODAL -->
+                			{% with id="createBalanceModal"|add:x %}
+											<div class="modal fade" id="{{id}}" tabindex="-1" role="dialog" aria-labelledby="createBalanceTitle" aria-hidden="true">
+											{% endwith %}
+												<div class="modal-dialog modal-dialog-centered" role="document">
+													<div class="modal-content">
+														<form id="form" enctype="multipart/form-data" action="" method="post">
+															<div class="modal-header bg-dark">
+																<h5 class="modal-title" id="createBalanceTitle">Update Balance</h5>
+																<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+																	<span aria-hidden="true">&times;</span>
+																</button>
+															</div>
+															<div class="modal-body">
+																{% csrf_token %}
+																<table class="table">
+                                  <tbody>
+                                    {% if values.table.create_balance_form.non_field_errors %}
+                                      <div class="alert alert-danger" role="alert">
+                                        {% for error in values.table.create_balance_form.non_field_errors %}
+                                          {{ error }}
+                                        {% endfor %}
+                                      </div>
+                                    {% endif %}
+                                    <div class="form-group">
+                                    {% for field in values.table.create_balance_form.visible_fields %}
+                                      <tr>
+                                        <td class="align-middle">
+                                          {{ field.label }}
+                                        </td>
+                                        <td class="align-middle">
+                                        {% if values.table.create_balance_form.is_bound %}
+                                          {% if field.errors %}
+                                            {% render_field field class="form-control is-invalid" %}
+                                            {% for error in field.errors %}
+                                              <div class="invalid-feedback">
+                                                {{ error }}
+                                              </div>
+                                            {% endfor %}
+                                          {% else %}
+                                            {% render_field field class="form-control is-valid" %}
+                                          {% endif %}
+                                        {% else %}
+                                          {% render_field field class="form-control" %}
+                                        {% endif %}
+                                        </td>
+                                      </tr>
+                                    {% endfor %}
+                                    </div>
+                                    {% for field in values.table.create_balance_form.hidden_fields %}
+                                      <tr>
+                                        {{ field }}
+                                      </tr>
+                                    {% endfor %}
+                                  </tbody>
+																</table>
+															</div>
+															<div class="modal-footer">
+																{% with form_name="create_balance_form"|add:x %}
+																	<input class="btn btn-robo-main" name="{{form_name}}" type="submit" value="Update"/>
+																{% endwith %}
+																<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+															</div>
+														</form>
+													</div>
+												</div>
+											</div>
+										{% endwith %}
+                    </td>
+                    <td class="text-center align-middle">
+                      <!-- ARCHIVE ACCOUNT: Trigger -->
+                      {% with x=account_id|stringformat:"s" %}
+                        {% with target="#archiveaccountmodal"|add:x %}
+                          <a><i class="batch-icon batch-icon-bin-alt-2" data-toggle="modal" data-target="{{target}}"></i></a>
+                        {% endwith %}
+                      <!-- ARCHIVE ACCOUNT: Modal -->
+                        {% archive_modal type="account" form_number=x condo=condo condo_id=condo_id model_id=account_id %}
+                      {% endwith %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+						</tbody>
+					</table>
+          {% if not all_accounts_insured %}
+          <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+            Bank Accounts highlighted in RED are NOT INSURED. This is in contravention of the Condo Act.
+          </div>
+          {% endif %}
+				</div>
+  		</div>
+    </div>
+  </div>
+	<!-- Bank Account Actions -->
+	<div class="col-md-2 align-self-center">
+		<!-- ADD NEW BANK ACCOUNT -->
+		<div class="row">
+			<div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+				<!-- CREATE ACCOUNT: Button trigger modal -->
+				<button type="button" class="btn btn-robo-head btn-lg" data-toggle="modal" data-target="#createaccountmodal">
+					Add Bank Account
+				</button>
+				<!-- CREATE ACCOUNT: Modal -->
+        {% create_modal type="account" form=create_account_form %}
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Investments -->
+<div class="row">
+  <!-- Investments Table -->
+  <div class="col-md-10 col-lg-12 col-xl-10 mb-5">
+    <div id="invmts_card" class="card card-md mt-3">
+  		<div class="card-header">
+  			Investments
+  		</div>
+  		<div class="card-body">
+        <div class="col-md-12 pb-1">
+					<table class="table table-hover">
+						<thead class="thead-light">
+							<tr>
+                <th>Institution</th>
+                <th>Instrument Number</th>
+                <th class="text-center">Rate</th>
+                <th class="text-center">Maturity</th>
+                <th class="text-center">Frequency</th>
+                <th class="text-center pl-3">Balance</th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+							</tr>
+						</thead>
+						<tbody>
+              {% if investments %}
+                {% for invmt_id, values in investments.items %}
+                  {% if not values.table.insured %}
+                  <tr class="border-red">
+                  {% else %}
+                  <tr>
+                  {% endif %}
+                    <td class="text-left">{{ values.table.institution }}</td>
+                    <td class="text-center">{{ values.table.instrument_number }}</td>
+                    <td class="text-center">{{ values.table.interest_rate }}</td>
+                    <td class="text-center">{{ values.table.maturity_date }}</td>
+                    <td class="text-center">{{ values.table.interest_frequency }}</td>
+                    <td class="text-right pr-5">{{ values.table.amount }}</td>
+                    <!-- Invmt Update -->
+                    <td class="text-center align-middle">
+                      <!-- Invmt Update: Trigger -->
+										  {% with x=invmt_id|stringformat:"s" %}
+                        {% with target="#updateinvmtmodal"|add:x %}
+                        <button type="button" class="btn btn-block btn-robo btn-sm" data-toggle="modal" data-target="{{target}}">
+  											  Edit
+  											</button>
+                        {% endwith %}
+                        <!-- Invmt Update Modal -->
+                        {% update_modal type="invmt" form_number=x form=values.table.update_invmt_form %}
+                      {% endwith %}
+                    </td>
+                    <td class="text-center align-middle">
+                      <!-- ARCHIVE INVESTMENT: Trigger -->
+                      {% with x=invmt_id|stringformat:"s" %}
+                        {% with target="#archiveinvmtmodal"|add:x %}
+                          <a><i class="batch-icon batch-icon-bin-alt-2" data-toggle="modal" data-target="{{target}}"></i></a>
+                        {% endwith %}
+                      <!-- ARCHIVE INVESTMENT: Modal -->
+                        {% archive_modal type="invmt" form_number=x condo=condo condo_id=condo_id model_id=invmt_id %}
+                      {% endwith %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              {% endif %}
+						</tbody>
+					</table>
+          {% if not all_invmts_insured %}
+          <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+            Investments highlighted in RED are NOT INSURED. This is in contravention of the Condo Act.
+          </div>
+          {% endif %}
+				</div>
+  	  </div>
+    </div>
+  </div>
+  <!-- Investments Actions -->
+  <div class="col-md-2 align-self-center">
+    <!-- ADD New Investment -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+        <!-- CREATE INVMT: Trigger -->
+        <button type="button" class="btn btn-robo-head btn-lg" data-toggle="modal" data-target="#createinvmtmodal">
+          Add New Investment
+        </button>
+        <!-- CREATE INVMT: Modal -->
+        {% create_modal type="invmt" form=create_invmt_form %}
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Reserve Fund Studies -->
+<div class="row justify-content-center">
+  <!-- STUDY TABLE -->
+  <div class="col-md-10 col-lg-12 col-xl-10 mb-5">
+  	<div id="studies_card" class="card card-xl">
+  		<div class="card-header">
+  			Reserve Fund Studies
+  		</div>
+  		<div class="card-body">
+        <div class="card-table table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="thead-light">
+              <tr>
+                <th class="text-left">Date</th>
+                <th class="text-center">Begining</th>
+                <th class="text-center">End</th>
+                <th class="text-center">Current?</th>
+                <th class="text-center">Flows?</th>
+                <th class="text-center"></th>
+                <th class="text-center"></th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Studies -->
+              {% for study_id, values in studies.items %}
+                {% if values.study.current == True %}
+                <tr class="bg-yellow">
+                {% else %}
+                <tr>
+                {% endif %}
+                  <td>
+                    {{values.date}}
+                  </td>
+                  <td class="text-center">
+                    {{values.study.first_year}}
+                  </td>
+                  <td class="text-center">
+                    {{values.study.last_year}}
+                  </td>
+                  <td class="text-center">
+                    {{values.study.current}}
+                  </td>
+                  <td class="text-center">
+                    {{values.flows}}
+                  </td>
+                  <!-- Update STUDY -->
+                  <td class="text-center">
+                    <!-- UPDATE STUDY: Trigger -->
+                    {% with x=study_id|stringformat:"s" %}
+                      {% with target="#updatestudymodal"|add:x %}
+                        <button type="button" class="btn btn-block btn-robo btn-sm" data-toggle="modal" data-target="{{target}}">
+                      {% endwith %}
+                          Edit
+                        </button>
+                    <!-- UPDATE STUDY: Modal -->
+                      {% update_modal type="study" form_number=x form=values.update_study_form %}
+                    {% endwith %}
+                  </td>
+                  <!-- ARCHIVE STUDY -->
+                  <td class="text-center">
+                    <!-- ARCHIVE STUDY: Trigger -->
+                    {% with x=study_id|stringformat:"s" %}
+                      {% with target="#archivestudymodal"|add:x %}
+                        <a><i class="batch-icon batch-icon-bin-alt-2" data-toggle="modal" data-target="{{target}}"></i></a>
+                      {% endwith %}
+                    <!-- ARCHIVE STUDY: Modal -->
+                      {% archive_modal type="study" form_number=x condo=condo condo_id=condo_id model_id=study_id %}
+                    {% endwith %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+  	  </div>
+    </div>
+  </div>
+  <!-- ACTIONS -->
+  <div class="col-md-2 align-self-center">
+    <!-- CREATE STUDY NEW -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+        <!-- CREATE STUDY: Trigger -->
+        <button id="createNewStudyTrigger" type="button" class="btn btn-robo-head btn-lg" data-toggle="modal" data-target="#createstudymodal">
+          Create New Study
+        </button>
+        <!-- CREATE STUDY: Modal -->
+        {% create_modal type="study" form=create_study_form %}
+      </div>
+    </div>
+    <!-- GO TO CURRENT PLAN -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 my-5">
+        {% if plan %}
+          <a href="{% url 'investmentplan:plan-main' condo=condo condo_id=condo.id rfs_id=study.id plan_id=plan.id %}">
+            <button type="button" class="btn btn-robo-head btn-lg">View Current Investment Plan</button>
+          </a>
+        {% elif study %}
+          <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+            You do not have an investmentplan for the current study
+          </div>
+          <div class="text-center">
+            <!-- <a href="{% url 'investmentplan:run-robocondo' condo=condo condo_id=condo.id rfs_id=study.id %}"> -->
+              <button type="button" class="btn btn-danger btn-lg" data-toggle="modal" data-target="#createPlanModal">Click Here to Make One</button>
+            <!-- </a> -->
+          </div>
+        {% else %}
+        <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+          You have not input a Reserve Fund Study
+        </div>
+        {% endif %}
+      </div>
+    </div>
+    <!-- CREATE PLAN -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 my-5">
+        {% if study %}
+          {% if plan %}
+          <!-- CREATE PLAN: Trigger -->
+          <button type="button" class="btn btn-robo-head btn-lg" data-toggle="modal" data-target="#createPlanModal">
+            Update Investment Plan
+          </button>
+          {% endif %}
+        {% else %}
+          <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+            You have not input a Reserve Fund Study
+          </div>
+        {% endif %}
+        <!-- CREATE PLAN: Modal -->
+        <div class="modal fade" id="createPlanModal" tabindex="-1" role="dialog" aria-labelledby="createPlanModalTitle" aria-hidden="true">
+          <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+              <div class="modal-header bg-dark">
+                <h5 class="modal-title" id="createPlanModalLongTitle">
+                  Are You Sure You Want to Update the Investment Plan?</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <span aria-hidden="true">&times;</span>
+                </button>
+              </div>
+                <div class="modal-body">
+                  Please ensure you have updated your reserve account and investment information.
+                </div>
+                <div class="modal-footer">
+                  {% if study %}
+                  <a href="{% url 'investmentplan:run-robocondo' condo=condo condo_id=condo.id rfs_id=study.id %}">
+                    <button type="button" class="btn btn-robo-main">
+                      Run RoboCondo!
+                    </button>
+                  </a>
+                  {% endif %}
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block end_js %}
+<script type="text/javascript">
+function cardHeight(id, num_records, height_per_record, header_height) {
+    var height = ((num_records - 1) * height_per_record + 300).toString().concat("px");
+    $("#".concat(id)).css("height", height);
+};
+var num_accounts = {{num_accounts}};
+
+$(document).ready(function () {
+    cardHeight("accounts_card", {{num_accounts}}, 90, 300);
+    cardHeight("invmts_card", {{num_invmts}}, 90, 300);
+    cardHeight("studies_card", {{num_studies}}, 35, 250);
+});
+</script>
+
+<script type="text/javascript">
+  function toasterOptions() {
+    toastr.options = {
+        "closeButton": true,
+        "allowHtml": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": true,
+        "onclick": null,
+        "showDuration": "10000",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "show",
+        "hideMethod": "hide"
+    };
+  };
+  toasterOptions();
+  $(document).ready(function() {
+    var val = document.getElementById("submit_success").getAttribute("value");
+    toastr.success(val + '</br>');
+  });
+  $(document).ready(function() {
+    var val = document.getElementById("error_message").getAttribute("value");
+    toastr.error(val + '</br>Reopen the form and follow the error messages provided');
+  });
+</script>
+<script>
+  $(".date-balance").datepicker({
+    dateFormat: "dd-mm-yy",
+    changeMonth: true,
+    changeYear: true,
+  });
+
+</script>
+{% endblock %}

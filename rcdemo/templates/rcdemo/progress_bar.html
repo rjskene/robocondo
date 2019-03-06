@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block main %}
+<div class="modal fade" id="demoProgressModal" tabindex="-1" role="dialog" aria-labelledby="demoProgressModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+				<div class="modal-header bg-dark">
+					<h5 class="modal-title" id="createAccountTitle">RoboCondo is runnning!</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+            <h5><span id=elapsedtime></span> seconds have elapsed</h5>
+            <div class="progress">
+              <div id=progressbar class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+              </div>
+            </div>
+				</div>
+				<div class="modal-footer">
+					<button id=demoProgressButton type="button" class="btn btn-link" data-dismiss="modal" data-toggle="modal" data-target="#demoSuccessModal">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+				</div>
+		</div>
+	</div>
+</div>
+<div class="modal fade" id="demoSuccessModal" tabindex="-1" role="dialog" aria-labelledby="demoSuccessModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+				<div class="modal-header bg-dark">
+					<h5 class="modal-title" id="demoSuccessModalTitle">SUCCESS!</h5>
+					<img class="img-fluid" src="{% static 'assets/img/robocondo/blue-checkmark-png-24.png' %}" width="400" height="200" alt="RoboCondo">
+					<form method="POST" action="">
+						{% csrf_token %}
+							<input class="d-none" id=demoSuccessButton type="submit">
+					</form>
+				</div>
+		</div>
+	</div>
+</div>
+
+{% endblock %}
+{% block end_js %}
+<script>
+  $('#demoProgressModal').modal('show');
+
+  function updateProgress (progressUrl, start) {
+      fetch(progressUrl).then(function(response) {
+          response.json().then(function(data) {
+            console.log(JSON.stringify(data));
+            progressSelector(data, start=start);
+          });
+      });
+  }
+  function progressSelector (data, start) {
+    var elapsed = performance.now() - start;
+    $("#progressbar").width(elapsed / 80 + "%");
+    $("#elapsedtime").text((elapsed / 1000).toFixed(1));
+    if (data.state == "SUCCESS") {
+      console.log("success!");
+      $("#demoProgressButton").click();
+      $("#demoSuccessButton").click();
+    } else {
+      if (elapsed < 15000) {
+        setTimeout(updateProgress, 100, progressUrl, start)
+      } else {
+        console.log("TIMEOUT!")
+      }
+    }
+  }
+  var progressUrl = '{% url "rcdemo:get-progress" task_id %}';  // django template usage
+  var performance = window.performance;
+  var start = performance.now();
+  updateProgress(progressUrl, start);
+
+</script>
+{% endblock %}

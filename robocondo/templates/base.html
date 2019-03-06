@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% load static %}
+<head>
+	{% block select_head %}{% endblock %}
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="{% static 'assets/img/robocondo/25037148 - no slogan.png' %}">
+
+	<title>Robocondo - Reserve Fund Investing Made Easy</title>
+
+	<!-- Fonts -->
+	<link href="https://fonts.googleapis.com/css?family=Montserrat:300,400,500,700&amp;subset=latin-ext" rel="stylesheet">
+
+	<!-- CSS - REQUIRED - START -->
+	<!-- Batch Icons -->
+	<link rel="stylesheet" href="{% static 'assets/fonts/batch-icons/css/batch-icons.css' %}">
+	<!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap/bootstrap.min.css' %}">
+	<!-- Material Design Bootstrap -->
+	<link rel="stylesheet" href="{% static 'assets/css/bootstrap/mdb.min.css' %}">
+	<!-- Custom Scrollbar -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/custom-scrollbar/jquery.mCustomScrollbar.min.css' %}">
+	<!-- Hamburger Menu -->
+	<link rel="stylesheet" href="{% static 'assets/css/hamburgers/hamburgers.css' %}">
+
+	<!-- CSS - REQUIRED - END -->
+
+	<!-- CSS - OPTIONAL - START -->
+	<!-- Font Awesome -->
+	<link rel="stylesheet" href="{% static 'assets/fonts/font-awesome/css/font-awesome.min.css' %}">
+	<!-- Toastr -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/toastr/toastr.min.css' %}">
+	<!-- Data tables -->
+	<link rel="stylesheet" href="{% static 'assets/plugins/datatables/css/responsive.dataTables.min.css' %}">
+	<link rel="stylesheet" href="{% static 'assets/plugins/datatables/css/responsive.bootstrap4.min.css' %}">
+
+	<!-- My CSS -->
+	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
+
+	<!-- CSS - OPTIONAL - END -->
+
+	<!-- QuillPro Styles -->
+	<link rel="stylesheet" href="{% static 'assets/css/quillpro/quillpro.css' %}">
+
+	{% block headtags %}{% endblock %}
+</head>
+
+<body>
+
+	<div class="container-fluid">
+		<div class="row">
+			<nav id="sidebar" class="px-0 bg-dark bg-gradient sidebar">
+				<ul class="nav nav-pills flex-column">
+					<li class="logo-nav-item">
+						<a class="navbar-brand" href="{% url 'accountmanager:login' %}">
+							<img class="img-fluid" src="{% static 'assets/img/robocondo/25037148 - no slogan.png' %}" width="600" height="400" alt="RoboCondo">
+						</a>
+					</li>
+					{% with request.resolver_match.view_name as view_name %}
+					<!-- Condo Views -->
+					{% if condo %}
+						<li class="nav-item">
+							<a class="nav-link">
+								<h5>{{condo}}</h5>
+								<img class="logo-nav-item" src="{% static 'images/toyfactory.jpg' %}" width="145" height="64" alt="QuillPro">
+							</a>
+							<ul class="nav nav-pills flex-column">
+								{% if view_name == "condo:main" %}
+									<li class="nav-item bg-gradient">
+								{% else %}
+									<li class="nav-item">
+								{% endif %}
+									<a class="nav-link" href="{% url 'condo:main' condo=condo condo_id=condo_id  %}">
+										Main</a>
+									</a>
+								{% if view_name == "investmentplan:plan-main" %}
+								<li class="nav-item bg-gradient">
+								{% else %}
+								<li class="nav-item">
+								{% endif %}
+									{% if plan %}
+									<a class="nav-link" href="{% url 'investmentplan:plan-main' condo=condo condo_id=condo_id rfs_id=study.id plan_id=plan.id %}">
+									Investment Plan</a>
+									{% endif %}
+								</li>
+
+							</ul>
+						</li>
+					{% endif %}
+					{% if view_name == "accountmanager:dashboard" %}
+						<li class="nav-item bg-gradient">
+					{% else %}
+						<li>
+							<br>
+							<hr color="white" width="50%"/>
+						</li>
+						<li class="nav-item">
+					{% endif %}
+					{% if user.is_authenticated %}
+							<a id="dashboard_sidebar" class="nav-link" href="{% url 'accountmanager:dashboard' username=user.username%}">
+								<i class="batch-icon batch-icon-browser-alt"></i>
+								Dashboard<span class="sr-only">(current)</span>
+							</a>
+						</li>
+					{% endif %}
+					{% if view_name == "rcdemo:plan" %}
+						<li class="nav-item">
+							<a class="nav-link" href="#">
+								<i class="batch-icon batch-icon-layout-content-left"></i>
+								DEMO
+							</a>
+						</li>
+					{% endif %}
+					<!-- Staff Functions & PYYC -->
+					{% if user.is_staff %}
+						<li>
+							<br>
+							<hr color="white" width="50%"/>
+						</li>
+						<li class="nav-item">
+							<a class="nav-link nav-parent" href="#">
+								<i class="batch-icon batch-icon-layout-content-left"></i>
+								Staff
+							</a>
+							<ul class="nav nav-pills flex-column">
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'condo:assign' %}">Assign Condos</a>
+								</li>
+								<li class="nav-item">
+									<a class="nav-link" href="{% url 'condo:create' %}">Create Condo</a>
+								</li>
+							</ul>
+						</li>
+						{% if view_name == "pyyc:main" %}
+							<li class="nav-item bg-gradient">
+						{% else %}
+							<li class="nav-item">
+						{% endif %}
+								<a class="nav-link" href="{% url 'pyyc:main'%}">
+									<i class="batch-icon  batch-icon-star"></i>
+									PYYC <span class="sr-only">(current)</span>
+								</a>
+							</li>
+						{% if view_name == "pyyc:main" %}
+							<ul class="nav nav-pills flex-column mt-4">
+				        <li class="nav-item">
+				          <a class="nav-link" href="#Actions">Actions</a>
+				        </li>
+				        <li class="nav-item">
+				          <a class="nav-link" href="#MarketData">Market Data</a>
+				        </li>
+								<li class="nav-item">
+				          <a class="nav-link" href="#GICs">GICs</a>
+				        </li>
+								<li class="nav-item">
+				          <a class="nav-link" href="#Selector">Selector</a>
+				        </li>
+				        <li class="nav-item">
+				          <a class="nav-link" href="#Forecasts">Forecasts</a>
+				        </li>
+			      	</ul>
+						{% endif %}
+					{% endif %}
+					{% endwith %}
+				</ul>
+			</nav>
+			<div class="right-column">
+				<nav class="navbar navbar-expand-lg navbar-light bg-white">
+					<a class="navbar-brand d-block d-sm-block d-md-block d-lg-none" href="#">
+						<img src="{% static 'assets/img/logo-dark.png' %}" width="145" height="32.3" alt="QuillPro">
+					</a>
+					<button class="hamburger hamburger--slider" type="button" data-target=".sidebar" aria-controls="sidebar" aria-expanded="false" aria-label="Toggle Sidebar">
+						<span class="hamburger-box">
+							<span class="hamburger-inner"></span>
+						</span>
+					</button>
+					<!-- Added Mobile-Only Menu -->
+					<ul class="navbar-nav ml-auto mobile-only-control d-block d-sm-block d-md-block d-lg-none">
+					</ul>
+
+					<!--  DEPRECATED CODE:
+						<div class="navbar-collapse" id="navbarSupportedContent">
+					-->
+					<!-- USE THIS CODE Instead of the Commented Code Above -->
+					<!-- .collapse added to the element -->
+					<div class="collapse navbar-collapse" id="navbar-header-content">
+						<ul class="navbar-nav mr-auto">
+						</ul>
+						<ul class="navbar-nav navbar-notifications float-right">
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle no-waves-effect" id="navbar-notification-misc" data-toggle="dropdown" data-flip="false" aria-haspopup="true" aria-expanded="false">
+									<i class="batch-icon batch-icon-bell"></i>
+									{% if notifications %}
+									<span class="notification-number">{{ notifications }}</span>
+									{% endif %}
+								</a>
+								{% if notifications %}
+								<ul class="dropdown-menu dropdown-menu-right dropdown-menu-md" aria-labelledby="navbar-notification-misc">
+									<li class="media">
+										<a href="task-list.html">
+											<i class="batch-icon batch-icon-bell batch-icon-xl d-flex mr-3"></i>
+											<div class="media-body">
+												<h6 class="mt-0 mb-1 notification-heading">Investment Expiry</h6>
+												<div class="notification-text">
+													This Condo has {{ notifications }} investment(s) expiring in the next month.
+													Considering updating your investment plan to prepare.
+												</div>
+												<span class="notification-time">Just now</span>
+											</div>
+										</a>
+									</li>
+								</ul>
+								{% endif %}
+							</li>
+						</ul>
+						<ul class="navbar-nav ml-5 navbar-profile">
+							<li class="nav-item dropdown">
+								<a class="nav-link dropdown-toggle" id="navbar-dropdown-navbar-profile" data-toggle="dropdown" data-flip="false" aria-haspopup="true" aria-expanded="false">
+									<div class="profile-name">
+										{% if user.is_authenticated %}
+											{{user.username}}
+										{% else %}
+											DEMO
+										{% endif %}
+									</div>
+									{% if user.is_authenticated %}
+									<div class="profile-picture bg-gradient bg-primary has-message float-right">
+										<img src="{% static 'assets/img/profile-pic.jpg' %}" width="44" height="44">
+									</div>
+									{% endif %}
+								</a>
+								<ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbar-dropdown-navbar-profile">
+									<li><a class="dropdown-item" href="#">Profile</a></li>
+									<li><a class="dropdown-item" href="#">Settings</a></li>
+									<li><a class="dropdown-item" href="{% url 'accountmanager:logout' %}">Logout</a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
+				</nav>
+				<main class="main-content p-5" role="main">
+					{% block main %}
+					{% endblock %}
+					<div class="row mb-4">
+						<div class="col-md-12">
+							<footer>
+								Powered by - <a href="http://base5builder.com/?click_source=quillpro_footer_link" target="_blank" style="font-weight:300;color:#ffffff;background:#1d1d1d;padding:0 3px;">Base<span style="color:#ffa733;font-weight:bold">5</span>Builder</a>
+							</footer>
+						</div>
+					</div>
+				</main>
+			</div>
+		</div>
+	</div>
+
+	<!-- SCRIPTS - REQUIRED START -->
+	<!-- Placed at the end of the document so the pages load faster -->
+	<!-- Bootstrap core JavaScript -->
+	<!-- JQuery -->
+	<script type="text/javascript" src="{% static 'assets/js/jquery/jquery-3.1.1.min.js' %}"></script>
+	<!-- Popper.js - Bootstrap tooltips -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/popper.min.js' %}"></script>
+	<!-- Bootstrap core JavaScript -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/bootstrap.min.js' %}"></script>
+	<!-- MDB core JavaScript -->
+	<script type="text/javascript" src="{% static 'assets/js/bootstrap/mdb.min.js' %}"></script>
+	<!-- Velocity -->
+	<script type="text/javascript" src="{% static 'assets/plugins/velocity/velocity.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/plugins/velocity/velocity.ui.min.js' %}"></script>
+	<!-- Custom Scrollbar -->
+	<script type="text/javascript" src="{% static 'assets/plugins/custom-scrollbar/jquery.mCustomScrollbar.concat.min.js' %}"></script>
+	<!-- jQuery Visible -->
+	<script type="text/javascript" src="{% static 'assets/plugins/jquery_visible/jquery.visible.min.js' %}"></script>
+	<!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
+	<script type="text/javascript" src="{% static 'assets/js/misc/ie10-viewport-bug-workaround.js' %}"></script>
+
+	<!-- SCRIPTS - REQUIRED END -->
+
+	<!-- SCRIPTS - OPTIONAL START -->
+
+	<!-- Date functionality to sort Datatables -->
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.8.4/moment.min.js"></script>
+	<!-- Toastr -->
+	<script type="text/javascript" src="{% static 'assets/plugins/toastr/toastr.min.js' %}"></script>
+
+	<!-- MY ADD-ONS -->
+	<!-- Image Placeholder -->
+	<script type="text/javascript" src="{% static 'assets/js/misc/holder.min.js' %}"></script>
+
+	<!-- Datatables -->
+	<script type="text/javascript" src="{% static 'assets/plugins/datatables/js/jquery.dataTables.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/plugins/datatables/js/dataTables.bootstrap4.min.js' %}"></script>
+	<script type="text/javascript" src="{% static 'assets/plugins/datatables/js/dataTables.responsive.min.js' %}"></script>
+
+	{% block datatable %}{% endblock %}
+	{% block plancharts%}{% endblock %}
+	<!-- MY SCRIPTS -->
+	{% block end_js %}{% endblock%}
+	<!-- SCRIPTS - OPTIONAL END -->
+
+	<!-- QuillPro Scripts -->
+	<script type="text/javascript" src="{% static 'assets/js/scripts.js' %}"></script>
+
+	<!-- Script allows document.ready css changes to occur without the changes being visible to the user -->
+	<script type="text/javascript">
+	$(document).ready(function() {
+  	$("html").css("visibility", "visible");
+	});
+	</script>
+	{% block select %}{% endblock %}
+</body>
+</html>

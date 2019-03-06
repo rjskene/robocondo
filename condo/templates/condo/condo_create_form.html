@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block main %}
+
+<!-- Investment Plan & Reserve Studies -->
+<div class="row">
+	<div class="col-md-6 col-lg-7 col-xl-6 mb-5">
+    <div class="card card-md mt-5">
+      <div class="card-header">
+        Create Condo
+      </div>
+      <div class="card-body">
+        <div class="row">
+          <form action="" method="post">{% csrf_token %}
+              {{ form.as_table }}
+              <input type="submit" value="Create" />
+              <button type="button" class="btn btn-primary" href="">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+	</div>
+</div>
+
+{% endblock %}

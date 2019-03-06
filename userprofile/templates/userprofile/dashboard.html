@@ -1,0 +1,18 @@
+{% extends 'base-robocondo.html' %}
+{% load static %}
+
+{% block content %}
+
+<h2>This is the User dashboard</h2>
+
+<h1>Condos</h1>
+<ul>
+{% for condo in object_list %}
+    <li><a href="{% url 'condo:condo-main' condo=condo.short_name condo_id=condo.id %}">{{ condo.name }}</a></li>
+{% endfor %}
+</ul>
+
+
+<a id="create-condo-link" href="{% url 'condo:condo-create' %}">Click Here to Create New Condo</a>
+
+{% endblock %}

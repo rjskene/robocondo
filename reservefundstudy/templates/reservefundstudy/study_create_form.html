@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block main %}
+
+<form enctype="multipart/form-data" action="" method="post">
+  {% csrf_token %}
+  {% if messages %}
+  <ul class='messages list-unstyled'>
+    {% for message in messages %}
+    <li>
+      {{ message }}
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <table class="table">
+    <tbody>
+      {% for field in form.visible_fields %}
+        <tr>
+          <td>
+            {{ field.label }}
+          </td>
+          <td>
+            {% if field.label == 'Date' %}
+              {{ field|add_class:'form-control date-rfs' }}
+            {% else %}
+              {{ field|add_class:'form-control' }}
+            {% endif %}
+          </td>
+        {% endfor %}
+        </tr>
+        <tr>
+          <td>
+            {% for key, value in form.errors.items %}
+              {{ value }}
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+    <input class="btn btn-primary" type="submit" value="Now Add Contributions and Expenditures"/>
+</form>
+
+
+{% endblock %}
+
+{% block javascript %}
+  <script>
+    $(".date-rfs").datepicker({
+      dateFormat: "dd-mm-yy",
+      changeMonth: true,
+      changeYear: true,
+    });
+{% endblock %}

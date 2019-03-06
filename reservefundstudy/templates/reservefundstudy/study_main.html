@@ -1,0 +1,275 @@
+{% extends "base.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block main %}
+<div class="row justify-content-center">
+  <!-- Toastr Messages -->
+  {% if messages %}
+  <ul class='messages list-unstyled'>
+    {% for message in messages %}
+      {% if "error_warning" in message.extra_tags %}
+        <li id="error_message" value="{{message}}">
+        </li>
+      {% elif "submit_success" in message.extra_tags %}
+        <li id="submit_success" value="{{message}}">
+        </li>
+      {% else %}
+        {{ message }}
+      {% endif %}
+    {% endfor %}
+  </ul>
+  {% endif %}
+  <!-- STUDY TABLE -->
+  <div class="col-md-8 col-lg-12 col-xl-8 mb-5">
+  	<div class="card card-xl">
+  		<div class="card-header">
+  			Reserve Fund Studies
+  		</div>
+  		<div class="card-body">
+        <div class="card-table table-responsive">
+          <table class="table table-hover align-middle">
+            <thead class="thead-light">
+              <tr>
+                <th class="text-left">Date</th>
+                <th class="text-center">Begining</th>
+                <th class="text-center">End</th>
+                <th class="text-center">Current?</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Studies -->
+              {% for study, form in update_forms %}
+                {% if study.current == True %}
+                <tr class="bg-light">
+                {% else %}
+                <tr>
+                {% endif %}
+                  <td>
+                    {{study.date}}
+                  </td>
+                  <td class="text-center">
+                    {{study.first_year}}
+                  </td>
+                  <td class="text-center">
+                    {{study.last_year}}
+                  </td>
+                  <td class="text-center">
+                    {{study.current}}
+                  </td>
+                  <td class="text-center">
+                    <!-- UPDATE: Button trigger modal -->
+                    {% with x=forloop.counter|stringformat:"s" %}
+                      {% with target="#updateStudyModal"|add:x %}
+                        <button type="button" class="btn btn-info" data-toggle="modal" data-target="{{target}}">
+                      {% endwith %}
+                          Update Details
+                        </button>
+                    <!-- UPDATE Modal -->
+                      {% with id="updateStudyModal"|add:x %}
+                        <div class="modal fade" id="{{id}}" tabindex="-1" role="dialog" aria-labelledby="updateStudyModalTitle" aria-hidden="true">
+                      {% endwith %}
+                          <div class="modal-dialog modal-dialog-centered" role="document">
+                            <div class="modal-content">
+                              <form id="form" enctype="multipart/form-data" action="" method="post">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="updateStudyModalLongTitle">Update Study</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  {% csrf_token %}
+                                  <table class="table">
+                                    <tbody>
+                                          {% for field in form.visible_fields %}
+                                            <tr>
+                                              <td>
+                                                {{ field.label }}
+                                              </td>
+                                              <td>
+                                                {% if field.label == 'Date' %}
+                                                  {{ field|add_class:'form-control date-rfs' }}
+                                                {% else %}
+                                                  {{ field|add_class:'form-control' }}
+                                                {% endif %}
+                                              </td>
+                                            </tr>
+                                          {% endfor %}
+                                            <tr>
+                                              <td>
+                                                {% for key, value in form.errors.items %}
+                                                  {{key}}{{ value }}
+                                                {% endfor %}
+                                              </td>
+                                            </tr>
+                                          {% for field in form.hidden_fields %}
+                                            <tr>
+                                              {% if field.name == "condo" %}
+                                                  {{ field }}
+                                              {% elif field.name == "id" %}
+                                                  {{ field }}
+                                              {% endif %}
+                                            </tr>
+                                          {% endfor %}
+                                    </tbody>
+                                  </table>
+                                </div>
+                                <div class="modal-footer">
+                                  {% with form_name="update_form"|add:x %}
+                                    <input class="btn btn-info" name="{{form_name}}" type="submit" value="Update"/>
+                                  {% endwith %}
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                </div>
+                              </form>
+                            </div>
+                          </div>
+                        </div>
+                    {% endwith %}
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+  	  </div>
+    </div>
+  </div>
+  <!-- ACTIONS -->
+  <div class="col-md-4 align-self-center">
+    <!-- CREATE NEW -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 mb-5">
+        <div class="card card-tile card-xs bg-white text-center">
+          <div class="card-body p-4">
+            <div class="tile-center">
+              <!-- CREATE: Button trigger modal -->
+              <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#createStudyModal">
+                Create New Study
+              </button>
+              <!-- CREATE Modal -->
+              <div class="modal fade" id="createStudyModal" tabindex="-1" role="dialog" aria-labelledby="createStudyModalTitle" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered" role="document">
+                  <div class="modal-content">
+                    <form enctype="multipart/form-data" action="" method="post">
+                      <div class="modal-header">
+                        <h5 class="modal-title" id="createStudyTitle">Create Study</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                          <span aria-hidden="true">&times;</span>
+                        </button>
+                      </div>
+                      <div class="modal-body">
+                          {% csrf_token %}
+                          <table class="table">
+                            <tbody>
+                              {% for field in create_form.visible_fields %}
+                                {% if field.label == "Condo" %}
+                                  <tr><th><label for="id_condo">Condo:</label></th><td><select name="condo" required id="id_condo">
+                                  <option value="">---------</option>
+                                  <option value="{{condo.id}}" selected>{{condo}}</option></select></td></tr>
+                                {% endif %}
+                                {% if field.label != "Condo" %}
+                                  <tr>
+                                    <td>
+                                      {{ field.label }}
+                                    </td>
+                                    <td>
+                                      {% if field.label == 'Date' %}
+                                        {{ field|add_class:'form-control date-rfs' }}
+                                      {% else %}
+                                        {{ field|add_class:'form-control' }}
+                                      {% endif %}
+                                    </td>
+                                  </tr>
+                                {% endif %}
+                              {% endfor %}
+                              {% for key, value in create_form.errors.items %}
+                                <tr>
+                                  <td>
+                                      {{key}}{{ value }}
+                                  </td>
+                                </tr>
+                              {% endfor %}
+                            </tbody>
+                          </table>
+                      </div>
+                      <div class="modal-footer">
+                        <input class="btn btn-info" name="create_form" type="submit" value="Create"/>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- GO TO CURRENT INVESTMENT PLAN -->
+    <div class="row">
+      <div class="col-md-12 col-lg-12 col-xl-12 my-5">
+        <div class="card card-tile card-xs bg-white text-center">
+          <div class="card-body p-4">
+            <!-- Accepts .invisible: Makes the items. Use this only when you want to have an animation called on it later -->
+            <div class="tile-left">
+              <i class="batch-icon batch-icon-user-alt batch-icon-xxl"></i>
+            </div>
+            <div class="tile-center">
+              {% if plan %}
+                <a href="{% url 'investmentplan:plan-main' condo=condo condo_id=condo_id plan_id=plan.id %}">
+                  <button type="button" class="btn btn-info btn-lg">View Current Investment Plan</button>
+                </a>
+              {% else %}
+                <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
+                You do not have an investmentplan for the current study</div>
+                <div class="text-center">
+                  <a href="{% url 'investmentplan:run-robocondo' condo=condo condo_id=condo_id rfs_id=study.id %}">
+                    <button type="button" class="btn btn-danger btn-lg">Click Here to Make One</button>
+                  </a>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block end_js %}
+<!-- Toastr setup -->
+<script type="text/javascript">
+  function toasterOptions() {
+    toastr.options = {
+        "closeButton": true,
+        "allowHtml": true,
+        "debug": false,
+        "newestOnTop": false,
+        "progressBar": false,
+        "positionClass": "toast-bottom-right",
+        "preventDuplicates": true,
+        "onclick": null,
+        "showDuration": "10000",
+        "hideDuration": "1000",
+        "timeOut": "5000",
+        "extendedTimeOut": "1000",
+        "showEasing": "swing",
+        "hideEasing": "linear",
+        "showMethod": "show",
+        "hideMethod": "hide"
+    };
+  };
+  toasterOptions();
+  $(document).ready(function() {
+    var val = document.getElementById("submit_success").getAttribute("value");
+    toastr.success(val + '</br>');
+  });
+  $(document).ready(function() {
+    var val = document.getElementById("error_message").getAttribute("value");
+    toastr.error(val + '</br>Reopen the form and follow the error messages provided');
+  });
+</script>
+{% endblock %}

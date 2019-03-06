@@ -1,0 +1,46 @@
+{% extends "base-robocondo.html" %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block content %}
+
+<div class="form-background p-5">
+  <div id="section1" class="row spacer-75"></div>
+  <div class='container-fluid chart-box white-bg text-center w-75'>
+    <div class="pt-3">
+      <h4>Set Forecast</h4>
+    </div>
+
+  <form id="currentforecast-form" enctype="multipart/form-data" method="post">
+    {% csrf_token %}
+    {% for field in form %}
+      {% if field.errors %}
+        <div class="control-group error">
+          <label class="control-label">{{ field.label }}</label>
+          <div class="controls">{{ field }}
+            <span class="help-inline">
+              {% for error in  field.errors %}
+                {{ error }}
+              {% endfor %}
+            </span>
+          </div>
+        </div>
+      {% else %}
+        <div class="control-group">
+        <label class="control-label">{{ field.label }}</label>
+        <div class="controls">{{ field }}
+            {% if field.help_text %}
+                <p class="help-inline"><small>{{ field.help_text }}</small></p>
+            {% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+
+    <div class='row justify-content-center pb-3'>
+      <input class="btn text-dark px-5 mr-5" type="submit" value="Save">
+      <a href="" class="btn text-dark px-5 ml-5" role="button">Cancel</a>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

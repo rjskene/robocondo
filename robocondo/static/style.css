@@ -1,0 +1,29 @@
+/* div {
+  border: 2px solid pink;
+} */
+
+.w-90 {
+  width: 90%
+}
+
+.h-90 {
+  height: 90%
+}
+
+.spacer-75 {
+  height: 75px
+}
+
+.spacer-50 {
+  height: 50px
+}
+
+.table-pyyc {
+   margin: auto;
+   width: 50% !important;
+}
+
+
+.table {
+  font-size:24px !important;
+    }
