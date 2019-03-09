@@ -1,3 +1,5 @@
+import math
+
 from django.http import HttpResponse
 from django.urls import reverse, reverse_lazy
 from django.shortcuts import render, redirect
@@ -82,6 +84,27 @@ class DashboardView(LoginRequiredMixin, ListView):
         self.username = self.request.user.username
         condos = get_objects_for_user(self.request.user, "condo.view_condo")
         return condos
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        condos = list(get_objects_for_user(self.request.user, "condo.view_condo"))
+        rows = math.ceil(len(condos) / 3)
+        print (rows)
+        sorted_condos = []
+        if rows == 1:
+            sorted_condos.append(condos)
+        else:
+            for row in range(rows - 1):
+                sorted_condos.append([])
+                for i in range(3):
+                    sorted_condos[row].append(condos.pop())
+                    print (sorted_condos)
+            sorted_condos.append(condos)
+        context["rows"] = rows
+        context["condos"] = sorted_condos
+        print (sorted_condos)
+        return context
 
 class UserViewSet(ModelViewSet):
     """

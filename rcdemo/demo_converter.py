@@ -21,6 +21,11 @@ class DemoConverter(Converter):
         if not isinstance(contributions, dict) or not isinstance(expenditures, dict):
             raise TypeError("contributions and expenditures must be of type dict")
 
+        if rates is not None and isinstance(rates, tuple):
+            self.given_rates = rates
+        else:
+            self.given_rates = None
+
         self.first_year = first_year
         self.last_year = last_year
         self.years = years
