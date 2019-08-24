@@ -22,7 +22,6 @@ def bool_string(boolean):
         raise TypeError("boolean must be of type bool")
 
 class HistoricalYieldCurve(Model):
-
     date = DateField("Date", unique=True)
 
     three_month = FloatField("ZC025YR")
@@ -225,7 +224,7 @@ class Dataset(Model):
         if self.raw and self.pc:
             raise IntegrityError("""One of raw or pc fields must be null""")
 
-        super(Dataset, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
     def __str__(self):
         if self.raw:
@@ -267,7 +266,7 @@ class Dataset(Model):
             df = pd.read_json(self.raw.json, orient="index")
         elif self.pc:
             df = pd.concat([pd.read_json(self.pc.json, orient="index"), self.pc.raw.external_df()], axis=1)
-
+        
         df.index.names = ["date"]
 
         return df
@@ -409,7 +408,7 @@ class PrincipalComponents(Model):
         df.index = df.index.format()
         self.json = df.to_json(orient="index")
 
-        super(PrincipalComponents, self).save(*args, **kwargs)
+        super().save(*args, **kwargs)
 
 class Cointegration(Model):
 

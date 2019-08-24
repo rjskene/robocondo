@@ -94,7 +94,7 @@ class PYYC:
                 pca, pc = self.save_pca(raw, 3, use_pca)
                 dataset = self.save_dataset(raw=raw, pc=pc)
                 self.save_multiple_coints(dataset)
-
+                
                 print ("Attempting to generate forecast...")
                 self.save_forecast_for_all_techniques(dataset, pca, skip_varma=skip_varma)
         print ("PYYC complete")
@@ -120,8 +120,8 @@ class PYYC:
         """
         if use_pca == True:
             data = raw.yields_df()
-
             pca = PCA(data=data, n_components=n_comp)
+            print ("PCA result", pca.df.index)
             pc = PC(raw=raw, n=n_comp, explained=pca.explained)
             pc.save(df=pca.df)
         elif use_pca == False:
@@ -129,7 +129,12 @@ class PYYC:
             pc = None
         else:
             raise ValueError("use_pca must be boolean")
-
+        if pca:
+            # No idea what's happneing here
+            # For some reason, datetimeindex is converted to string
+            # between creation of pca object and return
+            pca.df.index = pd.to_datetime(pca.df.index)
+            print ("PCA result 2", pca.df.index)
         return pca, pc
 
     def save_dataset(self, raw=None, pc=None):
@@ -234,7 +239,6 @@ class PYYC:
             else:
                 data = dataset.df()
                 external_data = None
-
             n_diffs = dataset.n_diffs()
             nodiff_data = dataset.nodiff_df()
             use_model = technique.use_technique()
@@ -248,7 +252,7 @@ class PYYC:
                                     order=(p, q), seasons=seasons,
                                     deterministic=deterministic, freq="M"
                 )
-                tot_rmse, set_rmses, df_trains  = yc.train(use_model=use_model,
+                tot_rmse, set_rmses, _  = yc.train(use_model=use_model,
                                                                  test_len=60,
                                                                  order=(p, q),
                                                                  seasons=seasons,

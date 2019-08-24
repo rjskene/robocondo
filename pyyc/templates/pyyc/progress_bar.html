@@ -68,7 +68,6 @@
   function updateProgress (progressUrl, start) {
       fetch(progressUrl).then(function(response) {
           response.json().then(function(data) {
-            console.log(JSON.stringify(data));
             progressSelector(data, start=start);
           });
       });
@@ -85,10 +84,9 @@
 			console.log("These GICs have already been added");
 			$("#ProgressButton2").click();
 			$("#DuplicatesButton").click();
-		}
-			else {
+	} else {
       setTimeout(updateProgress, 1000, progressUrl, start)
-      }
+    }
   }
 
   var progressUrl = '{% url "pyyc:get-progress" task_id %}';

@@ -18,11 +18,10 @@ class PCA:
             raise TypeError("Data structure must be Pandas Dataframe")
         else:
             self.df_data = data
-
         self.orig_data = data
         self.n_components = n_components
-        self.pca, self.df = self.pca()
-        self.explained = self.pca.explained_variance_ratio_.tolist()
+        self.pca_attr, self.df = self.pca()
+        self.explained = self.pca_attr.explained_variance_ratio_.tolist()
 
     def pca(self):
         # calculate Principal components for input variables

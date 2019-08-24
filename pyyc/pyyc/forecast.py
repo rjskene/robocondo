@@ -69,7 +69,6 @@ class YieldCurveForecast:
         else:
             self.data = pd.concat([data, external_data], axis=1)[1:]
             self.pca = None
-
         self.n_diffs = n_diffs
         if self.n_diffs != 0:
             self.nodiff_data = nodiff_data
@@ -226,11 +225,10 @@ class YieldCurveForecast:
         Order: q variable (nuumber of correlated error lags to regress)
         freq: frequency of time series; should be inferred automatically from Dataframe
         """
-
         vecm = VECM(
                     data, k_ar_diff=order[0],
                     deterministic=deterministic,
-                    seasons=seasons, coint_rank=coint_rank, freq=freq
+                    seasons=seasons, coint_rank=coint_rank, freq=None
         )
         vecm_fit = vecm.fit()
 
@@ -268,10 +266,10 @@ class YieldCurveForecast:
             columns = self.data.columns
             if isinstance(self.pca, PCA):
                 if self.external_data is None or self.external_data.empty:
-                    yc_proj = self.pca.pca.inverse_transform(yc_proj)
+                    yc_proj = self.pca.pca_attr.inverse_transform(yc_proj)
                     columns = self.pca.orig_data.columns
                 else:
-                    data = self.pca.pca.inverse_transform(yc_proj[ : , :self.pca.n_components])
+                    data = self.pca.pca_attr.inverse_transform(yc_proj[ : , :self.pca.n_components])
                     yc_proj = np.hstack((data, yc_proj[ : , self.pca.n_components: ]))
                     columns = self.pca.orig_data.columns.tolist() + self.external_data.columns.tolist()
 
@@ -296,9 +294,9 @@ class YieldCurveForecast:
 
         if isinstance(self.pca, PCA):
             if self.external_data is None or self.external_data.empty:
-                yc_proj = self.pca.pca.inverse_transform(yc_proj)
+                yc_proj = self.pca.pca_attr.inverse_transform(yc_proj)
             else:
-                data = self.pca.pca.inverse_transform(yc_proj[ : , :self.pca.n_components])
+                data = self.pca.pca_attr.inverse_transform(yc_proj[ : , :self.pca.n_components])
                 yc_proj = np.hstack((data, yc_proj[ : , self.pca.n_components: ]))
         x = 0
         for row in yc_proj:

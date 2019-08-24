@@ -154,7 +154,7 @@ LOGOUT_URL = "/login/"
 LOGOUT_REDIRECT_URL = "/login/"
 SESSION_COOKIE_SECURE = False
 SESSION_SAVE_EVERY_REQUEST = True
-SESSION_COOKIE_AGE = 5*60
+SESSION_COOKIE_AGE = 30*60
 
 AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend", # this is default
@@ -174,14 +174,14 @@ AUTHENTICATION_BACKENDS = (
 # CELERY Settings
 CELERY_ENABLE_UTC = True
 CELERY_TIMEZONE = "UTC"
-CELERY_BROKER_URL= config("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = config("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL= config("REDIS_URL")
+CELERY_RESULT_BACKEND = config("REDIS_URL")
 
 CELERY_TASK_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"
 
-# We don"t want to have dead connections stored on rabbitmq, so we have to negotiate using heartbeats
+# We don"t want to have dead connections stored on message broker, so we have to negotiate using heartbeats
 BROKER_HEARTBEAT = "?heartbeat=600"
 if not CELERY_BROKER_URL.endswith(BROKER_HEARTBEAT):
     CELERY_BROKER_URL += BROKER_HEARTBEAT

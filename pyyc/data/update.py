@@ -66,7 +66,6 @@ def update_yc_request():
     last_date = HYC.objects.latest("date").date
     current_date = dt.today().strftime("%Y-%m-%d")
 
-
     url_of_file = "https://www.bankofcanada.ca/stats/results/csv?lookupPage=lookup_yield_curve.php&startRange=1986-01-01&searchRange=&dFrom={}&dTo={}&submit=Submit".format(last_date, current_date)
     urlretrieve(url_of_file, outfilename)
 
@@ -121,12 +120,12 @@ def update_gap():
     cols = ["output_gap"]
 
     df = pd.DataFrame(index=dates, data=values, columns=cols)
+    print (df)
     df.index = pd.to_datetime(df.index).to_period("M").to_timestamp("M")
-    df = df.iloc[::-1]
     values = make_values(df)
     for record in values:
-        if get_or_none(model=GAP, date=record["date"]):
-            GAP.objects.get_or_create(date=date, output_gap=gap)
+        if not get_or_none(model=GAP, date=record["date"]):
+            GAP.objects.get_or_create(date=record["date"], output_gap=record["output_gap"])
 
 def update_bocgic(one_time=False):
     gic1 = "BOC/V121771"

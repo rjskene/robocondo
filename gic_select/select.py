@@ -6,6 +6,7 @@ import ssl
 from bs4 import BeautifulSoup as bs
 
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from django.db.models.query import QuerySet
@@ -14,29 +15,27 @@ from django.db import transaction
 from .models import GICs, GICPlan, GICSelect, CDIC, DICO
 
 def update_gics(headless=False):
-    host = "0.0.0.0"  # Bind to 0.0.0.0 to allow external access
+    # host = "0.0.0.0"  # Bind to 0.0.0.0 to allow external access
 
     # Set host to externally accessible web server address
-    host = socket.gethostbyname(socket.gethostname())
+    # host = socket.gethostbyname(socket.gethostname())
 
     print ("initializing GIC Update...")
     if headless:
         # Instantiate the remote WebDriver
-        chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('headless')
-        chrome_options.add_argument('window-size=1920x1080')
-        capabilities = {'browserName': 'chrome', 'javascriptEnabled': True}
-        capabilities.update(chrome_options.to_capabilities())
+        options = Options()
+        options.set_headless(headless=True)
+        # chrome_options.add_argument('window-size=1920x1080')
+        # capabilities = {'browserName': 'chrome', 'javascriptEnabled': True}
+        # capabilities.update(chrome_options.to_capabilities())
     elif headless == False:
-        capabilities = DesiredCapabilities.CHROME
+        options=None
     else:
         raise ValueError("Headless must be Boolean")
 
     print ("Instantiating WebDriver...")
-    # Instantiate the remote WebDriver
-    chrome = webdriver.Remote(
-        command_executor="http://selenium_hub:4444/wd/hub",
-        desired_capabilities=capabilities,
+    chrome = webdriver.Chrome('/Users/spindicate/Documents/programming/chromedriver/chromedriver',
+                    options=options
     )
     print ("Success")
     url = "http://www.financialpost.com/personal-finance/rates/gic-annual.html"

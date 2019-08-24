@@ -13,7 +13,6 @@ def update_gics_task(self):
     self.update_state(
         state="PROGRESS",
     )
-
     try:
         update_gics(headless=True)
         return
