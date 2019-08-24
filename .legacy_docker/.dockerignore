@@ -1,0 +1,10 @@
+# root files
+.gitignore
+.env
+docker-compose.yml
+
+# root folders
+.env
+
+# ANY fixtures
+fixtures/
