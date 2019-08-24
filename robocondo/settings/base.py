@@ -57,6 +57,7 @@ INSTALLED_APPS = ROCO_APPS + DJANGO_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -99,6 +100,10 @@ DATABASES = {
         "PORT": "5432",
     }
 }
+# Heroku: Update database configuration from $DATABASE_URL.
+import dj_database_url
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
@@ -139,15 +144,12 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATICFILES_DIRS = [
-    os.path.join(
-    os.path.dirname(os.path.dirname(__file__)),
-    "static",),
     os.path.join(BASE_DIR, "robocondo/static"),
     os.path.join(BASE_DIR, "investmentplan/static"),
     os.path.join(BASE_DIR, "condo/static")
 ]
 
-STATIC_ROOT = os.path.join(BASE_DIR + '/robocondo', 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 #MY CUSTOM settings
 ENV_PATH = os.path.abspath(os.path.dirname(__file__))
