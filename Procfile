@@ -1,2 +1,2 @@
 web: gunicorn robocondo.wsgi --log-file -
-worker: celery -A robocondo worker -l info --concurrency=50
+worker: celery -A robocondo worker -l debug --concurrency=2
