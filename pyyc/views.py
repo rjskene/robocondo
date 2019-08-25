@@ -271,7 +271,7 @@ def get_progress_view(request, **kwargs):
         "state": result.state,
         "details": result.info,
     }
-
+    print ("this is the state of the task", result.state)
     return JsonResponse(response_data)
 
 class ForecastViewSet(ModelViewSet):
