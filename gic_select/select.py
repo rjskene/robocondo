@@ -25,6 +25,7 @@ def update_gics(headless=False):
         # Instantiate the remote WebDriver
         options = Options()
         options.set_headless(headless=True)
+        options.binary_location = os.environ.get('CHROME_BIN')
         # chrome_options.add_argument('window-size=1920x1080')
         # capabilities = {'browserName': 'chrome', 'javascriptEnabled': True}
         # capabilities.update(chrome_options.to_capabilities())
@@ -34,7 +35,7 @@ def update_gics(headless=False):
         raise ValueError("Headless must be Boolean")
 
     print ("Instantiating WebDriver...")
-    chrome = webdriver.Chrome(executable_path=str(os.environ.get('CHROMEDRIVER_PATH')),
+    chrome = webdriver.Chrome(executable_path=os.environ.get('CHROMEDRIVER_PATH'),
                     options=options
     )
     print ("Success")
