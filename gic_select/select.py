@@ -52,17 +52,24 @@ def update_gics(headless=False):
         if row.get_attribute("class") == "heading":
             pass
         elif row.get_attribute("class") == "heading npTxtLeft":
+            print ("this ever on?")
             break
         else:
+            print ("how now?", row)
             cells = row.find_elements_by_tag_name("td")
+            print ("and now????", cells)
             dct["issuer"] = cells[0].text
+            print ("this time????", cells)
             dct["date"] = dt.strptime(cells[1].text, "%d %b").replace(year=dt.now().year)
+            print ("space????", cells)
             dct["amount"] = cells[2].text
+            print ("space balss????", cells)
             for i, cell in enumerate(cells[3:]):
                 dct["term"] = i + 1
                 dct["rate"] = float(cell.text) / 100
                 values.append(dct.copy())
-    print (dct)
+            print ("get here???", cells)
+    print (values)
     chrome.quit()
     GICs.objects.bulk_create(GICs(**vals) for vals in values)
     print ("GIC Update complete")
