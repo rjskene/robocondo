@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import numpy as np
 from operator import sub
@@ -277,7 +278,7 @@ class Pyondo:
             model.Balance_Constraint.add(model.Balance[period] == model.PBalance[period] - sum(model.Investments[period, term] for term in model.Terms)
             )
 
-        opt = SolverFactory("glpk", executable="/usr/local/bin/glpsol")
+        opt = SolverFactory("glpk", executable=os.environ.get('GLPSOL_PATH'))
 
         self.results = opt.solve(model, symbolic_solver_labels=True)
         model.solutions.store_to(self.results)
