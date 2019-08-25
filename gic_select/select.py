@@ -1,4 +1,4 @@
-import socket
+import socket, os
 from datetime import datetime as dt, date
 from urllib.request import urlopen, Request, urlretrieve
 import ssl
@@ -34,7 +34,7 @@ def update_gics(headless=False):
         raise ValueError("Headless must be Boolean")
 
     print ("Instantiating WebDriver...")
-    chrome = webdriver.Chrome('/Users/spindicate/Documents/programming/chromedriver/chromedriver',
+    chrome = webdriver.Chrome(executable_path=str(os.environ.get('CHROMEDRIVER_PATH')),
                     options=options
     )
     print ("Success")
