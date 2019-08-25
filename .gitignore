@@ -123,8 +123,8 @@ reservefundstudy/fixtures/*
 # PYYC data for preparation
 /pyyc/upload_data/*
 
-# Celery Custom Reload Module
-run_celery_auto_reload.py
-
 #Pyomo Outputs
 *.lp
+
+# Selenium
+/.chromedriver

@@ -45,7 +45,9 @@ def update_gics(headless=False):
     print ("Updating values...")
     rows = chrome.find_elements_by_tag_name("tr")
     values = []
+    print ("is this on???")
     for row in rows:
+        print ("and this?", row)
         dct = {}
         if row.get_attribute("class") == "heading":
             pass
@@ -60,7 +62,7 @@ def update_gics(headless=False):
                 dct["term"] = i + 1
                 dct["rate"] = float(cell.text) / 100
                 values.append(dct.copy())
-
+    print (dct)
     chrome.quit()
     GICs.objects.bulk_create(GICs(**vals) for vals in values)
     print ("GIC Update complete")
