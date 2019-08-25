@@ -128,3 +128,8 @@ reservefundstudy/fixtures/*
 
 # Selenium
 /.chromedriver
+.bash_profile
+
+#Legacy docker files
+/.legacy_docker
+/.vscode
