@@ -121,7 +121,6 @@ class PYYC:
         if use_pca == True:
             data = raw.yields_df()
             pca = PCA(data=data, n_components=n_comp)
-            print ("PCA result", pca.df.index)
             pc = PC(raw=raw, n=n_comp, explained=pca.explained)
             pc.save(df=pca.df)
         elif use_pca == False:
@@ -134,7 +133,6 @@ class PYYC:
             # For some reason, datetimeindex is converted to string
             # between creation of pca object and return
             pca.df.index = pd.to_datetime(pca.df.index)
-            print ("PCA result 2", pca.df.index)
         return pca, pc
 
     def save_dataset(self, raw=None, pc=None):

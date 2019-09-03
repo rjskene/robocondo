@@ -1,5 +1,4 @@
-from django.urls import path, include
-from django.urls import reverse
+from django.urls import path, include, reverse
 
 from django.contrib.auth import views as auth_views
 

@@ -11,7 +11,7 @@ from django.test.utils import override_settings
 from django.test.client import Client
 from django.contrib.auth.models import User
 
-from condo.models import Condo
+from condo.models import Condo, BankAccounts, AccountBalance
 from condo.helpers import condo_short_name
 
 from pyondo.pyondo import Pyondo
@@ -34,18 +34,19 @@ from gic_select.models import GICs, GICSelect, GICPlan
 from robocondo.global_helpers import test_data_1, DBTestSetUp
 from robocondo.settings.base import ROCO_APPS
 
-def plan_maker(study=None, invmts=False, spread=None, naive_rates=False):
+def plan_maker(study=None, invmts=False, spread=None, naive_rates=True):
     plan = PlanFactory() if not study else PlanFactory(study=study)
     conts = ContFactory(study=plan.study, **cont_kwargs)
     exps = ExpFactory(study=plan.study, **exp_kwargs)
     acct = BAFactory(condo=plan.study.condo)
     bal = ABFactory(account=acct)
+
     invmts = InvmtsFactory(condo=plan.study.condo) if invmts else None
     converter = Converter(condo_id=conts.study.condo.id, study_id=conts.study.id, spread=spread, naive_rates=naive_rates)
     kwargs = converter.make_kwargs()
     invmt_plan = Pyondo(**kwargs)
     model = invmt_plan.pyondo()
-    values = invmt_plan.values(model)
+    values = invmt_plan.values()
     return {
             "values":values, "plan": plan,
             "converter": converter, "bal": bal,
@@ -102,7 +103,7 @@ class CreateNewForecastBankAccountNoInvestmentsTests(TestCase):
             self.assertEqual(round(row.total_investments, 2), round((row.term_1 + row.term_2 + row.term_3 + row.term_4 + row.term_5), 2))
 
 class CreateNewForecastBankAccountAndInvestmentsTests(TestCase):
-    fixtures = ["users.json", "pyyc.json"]
+    # fixtures = ["pyyc.json"]
 
     @classmethod
     def setUpTestData(self):
@@ -157,7 +158,6 @@ class AddMultipleInvestmentPlansTests(TestCase):
     Creating multiple investment plans
     Test is if previous investment plans are re-classified as Archived
     """
-    fixtures = ["users.json", "pyyc.json"]
 
     @classmethod
     def setUpTestData(self):

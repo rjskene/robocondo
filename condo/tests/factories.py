@@ -26,7 +26,7 @@ class BankAccountsFactory(DjangoModelFactory):
     condo = SubFactory(CondoFactory)
     account_number = "JZ12-416"
     institution = "CIBC"
-    type =  "Reserve"
+    type =  "RESERVE"
     spread = 0.03
 
 class AccountBalanceFactory(DjangoModelFactory):

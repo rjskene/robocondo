@@ -40,22 +40,26 @@ class Plan(Model):
         Set status_bool and status attribute to True and Current if this is the most recent
         plan added to the db
         If the plan being added is the most current, adjust all prior entries to False and ARCHIVED
+        Only one current PER CONDO
         Must set date_added / date_modified manually so that they are available for logical comparison
         """
         if not self.pk:
             self.date_added = timezone.now()
         self.date_modified = timezone.now()
         if Plan.objects.all():
-            self.status_bool = self.date_added > Plan.objects.latest("date_added").date_added
+            self.status_bool = self.date_added > Plan.objects.filter(study__condo=self.study.condo).latest("date_added").date_added
         else:
             self.status_bool = True
+
         self.status = self.Status.CURRENT.value if self.status_bool else self.Status.ARCHIVED.value
 
         if self.status_bool:
             try:
                 Plan.objects.filter(
+                    study__condo=self.study.condo,
                     date_added__lt=self.date_added).update(status_bool=False)
                 Plan.objects.filter(
+                    study__condo=self.study.condo,
                     date_added__lt=self.date_added).update(status=self.Status.ARCHIVED.value)
             except Plan.DoesNotExist:
                 pass

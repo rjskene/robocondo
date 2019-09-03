@@ -90,7 +90,6 @@ class DashboardView(LoginRequiredMixin, ListView):
 
         condos = list(get_objects_for_user(self.request.user, "condo.view_condo"))
         rows = math.ceil(len(condos) / 3)
-        print (rows)
         sorted_condos = []
         if rows == 1:
             sorted_condos.append(condos)
@@ -99,11 +98,9 @@ class DashboardView(LoginRequiredMixin, ListView):
                 sorted_condos.append([])
                 for i in range(3):
                     sorted_condos[row].append(condos.pop())
-                    print (sorted_condos)
             sorted_condos.append(condos)
         context["rows"] = rows
         context["condos"] = sorted_condos
-        print (sorted_condos)
         return context
 
 class UserViewSet(ModelViewSet):
