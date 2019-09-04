@@ -7,6 +7,8 @@ from collections import OrderedDict
 from pyomo.environ import *
 from pyomo.opt import SolverFactory
 
+from decouple import config
+
 class Pyondo:
     """
     Class to generate investment plan from reservefundstudy projection and interest
@@ -277,8 +279,8 @@ class Pyondo:
             )
             model.Balance_Constraint.add(model.Balance[period] == model.PBalance[period] - sum(model.Investments[period, term] for term in model.Terms)
             )
-
-        opt = SolverFactory("glpk", executable=os.environ.get('GLPSOL_PATH'))
+        
+        opt = SolverFactory("glpk", executable=config('GLPSOL_PATH'))
 
         self.results = opt.solve(model, symbolic_solver_labels=True)
         model.solutions.store_to(self.results)

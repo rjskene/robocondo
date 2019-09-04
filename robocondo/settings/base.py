@@ -185,6 +185,7 @@ CELERY_RESULT_BACKEND = config("REDIS_URL")
 CELERY_TASK_SERIALIZER = "json"
 CELERY_ACCEPT_CONTENT = ["application/json"]
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # We don"t want to have dead connections stored on message broker, so we have to negotiate using heartbeats
 BROKER_HEARTBEAT = "?heartbeat=600"

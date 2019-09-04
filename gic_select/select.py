@@ -3,6 +3,7 @@ from datetime import datetime as dt, date
 from urllib.request import urlopen, Request, urlretrieve
 import ssl
 
+from decouple import config
 from bs4 import BeautifulSoup as bs
 
 from selenium import webdriver
@@ -24,8 +25,8 @@ def update_gics(headless=False):
     if headless:
         # Instantiate the remote WebDriver
         options = Options()
-        options.set_headless(headless=True)
-        options.binary_location = os.environ.get('CHROME_BIN')
+        options.set_headless(headless=headless)
+        options.binary_location = config('CHROME_BIN')
         # chrome_options.add_argument('window-size=1920x1080')
         # capabilities = {'browserName': 'chrome', 'javascriptEnabled': True}
         # capabilities.update(chrome_options.to_capabilities())
@@ -35,7 +36,7 @@ def update_gics(headless=False):
         raise ValueError("Headless must be Boolean")
 
     print ("Instantiating WebDriver...")
-    chrome = webdriver.Chrome(executable_path=os.environ.get('CHROMEDRIVER_PATH'),
+    chrome = webdriver.Chrome(executable_path=config('CHROMEDRIVER_PATH'),
                     options=options
     )
     print ("Success")
