@@ -393,13 +393,14 @@ a.badge-light {
   color: #384044 !important; }
 
 /* Backgrounds */
+
 .bg-primary {
   color: #FFFFFF;
   background-color: #07a7e3 !important; }
 
 .bg-secondary {
-  color: #FFFFFF;
-  background-color: #4f5b60 !important; }
+  color: #2B6F92;
+  background-color: #f8d878 !important; }
 
 .bg-success {
   color: #FFFFFF;
@@ -642,10 +643,10 @@ a.badge-light {
   border-color: #55d3f5 !important; }
 
 /* Text Colors */
-.text-priamry {
-  color: #07a7e3 !important; }
+.text-primary {
+  color: #2B6F92 !important; }
   .text-priamry .batch-icon {
-    color: #07a7e3 !important; }
+    color: #2B6F92 !important; }
 
 .text-secondary {
   color: #4f5b60 !important; }
@@ -3886,7 +3887,7 @@ input[type=date].valid, input[type=date]:focus.valid, input[type=datetime-local]
 .sidebar.bg-warning.bg-gradient,
 .sidebar.bg-info.bg-gradient,
 .sidebar.bg-success.bg-gradient {
-  background-color: #122f3b;
+  background-color: #FFFFFF;
   background-image: none;
   -webkit-transition: none;
   -moz-transition: none;
@@ -3900,13 +3901,6 @@ input[type=date].valid, input[type=date]:focus.valid, input[type=datetime-local]
 .sidebar.bg-gradient .nav .nav-item .nav-link.active,
 .sidebar.bg-primary.bg-gradient .nav .nav-item .nav-link.active {
   background: #07a7e3;
-  /* Old browsers */
-  background: -moz-linear-gradient(-45deg, #07a7e3 0%, #32dac3 100%);
-  /* FF3.6-15 */
-  background: -webkit-linear-gradient(-45deg, #07a7e3 0%, #32dac3 100%);
-  /* Chrome10-25,Safari5.1-6 */
-  background: linear-gradient(135deg, #07a7e3 0%, #32dac3 100%);
-  /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr=$qp-color-1, endColorstr=$qp-color-2,GradientType=1 );
   /* IE6-9 fallback on horizontal gradient */
   -webkit-transition: opacity 0.2s ease-out;

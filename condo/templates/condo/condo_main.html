@@ -24,7 +24,7 @@
   {% endif %}
 	<!-- Header Cards -->
 	<div class="col-md-6 col-lg-6 col-xl-4 mb-5">
-		<div class="card card-tile card-xs bg-gradient text-center">
+		<div class="card card-tile card-xs bg-card-dark text-center">
 			<div class="card-body p-4">
 				<!-- Accepts .invisible: Makes the items. Use this only when you want to have an animation called on it later -->
 				<div class="tile-left">
@@ -51,7 +51,7 @@
 		</div>
 	</div>
 	<div class="col-md-6 col-lg-6 col-xl-4 mb-5">
-		<div class="card card-tile card-xs bg-gradient text-center">
+		<div class="card card-tile card-xs bg-card-dark text-center">
 			<div class="card-body p-4">
         {% if plan %}
   				<div class="tile-left">
@@ -279,9 +279,9 @@
                 <th class="text-center"></th>
                 <th class="text-center"></th>
 							</tr>
-						</thead>
+            </thead>      
+            {% if investments %}
 						<tbody>
-              {% if investments %}
                 {% for invmt_id, values in investments.items %}
                   {% if not values.table.insured %}
                   <tr class="border-red">
@@ -319,13 +319,17 @@
                     </td>
                   </tr>
                 {% endfor %}
+              </tbody>
+              {% else %}
               {% endif %}
-						</tbody>
+						
 					</table>
           {% if not all_invmts_insured %}
+          {% if investments %}
           <div class="icon batch-icon batch-icon-delete align-self-center text-danger">
-            Investments highlighted in RED are NOT INSURED. This is in contravention of the Condo Act.
+            Investments highlighted in RED are NOT INSURED and, therefore, do not comply with the Condo Act.
           </div>
+          {% endif %}
           {% endif %}
 				</div>
   	  </div>
@@ -372,7 +376,7 @@
               <!-- Studies -->
               {% for study_id, values in studies.items %}
                 {% if values.study.current == True %}
-                <tr class="bg-yellow">
+                <tr class="bg-rcyellow">
                 {% else %}
                 <tr>
                 {% endif %}

@@ -14,12 +14,14 @@
 				<div class="modal-body">
             <h5><span id=elapsedtime></span> seconds have elapsed</h5>
             <div class="progress">
-              <div id=progressbar class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
+              <div id="progressbar" class="progress-bar progress-bar-striped bg-info" role="progressbar" style="width: 0%" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100">
               </div>
             </div>
 				</div>
 				<div class="modal-footer">
-					<button id=ProgressButton type="button" class="btn btn-link" data-dismiss="modal" data-toggle="modal" data-target="#SuccessModal">
+					<button id="ProgressButton" type="button" class="btn btn-link" data-dismiss="modal" data-toggle="modal" data-target="#SuccessModal">
+          <button id="InsufficientButton" type="button" class="btn btn-link" data-dismiss="modal" data-toggle="modal" data-target="#InsufficientModal">
+          <button id="TimeLimitButton" type="button" class="btn btn-link" data-dismiss="modal" data-toggle="modal" data-target="#TimeLimitModal">
 					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 				</div>
 		</div>
@@ -33,12 +35,53 @@
 					<img class="img-fluid" src="{% static 'assets/img/robocondo/blue-checkmark-png-24.png' %}" width="400" height="200" alt="RoboCondo">
 					<form method="POST" action="">
 						{% csrf_token %}
-							<input class="d-none" id=SuccessButton type="submit">
+							<input class="d-none" id="SuccessButton" type="submit">
 					</form>
 				</div>
 		</div>
 	</div>
 </div>
+<div class="modal fade" id="InsufficientModal" tabindex="-1" role="dialog" aria-labelledby="InsufficientModalTitle" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+				<div class="modal-header bg-dark">
+					<h5 class="modal-title" id="InsufficientTitle">There was an Error</h5>
+				</div>
+				<div class="modal-body">
+            <h5 class="text-danger">It appears the reserve fund balance is insufficient for the reserve plan</h5>
+				</div>
+				<div class="modal-footer">
+          <a href='{% url "condo:main" condo condo_id %}'>
+            <button type="button" class="btn btn-robo-main">Return to Condo Main Page</button>
+          </a>
+				</div>
+		</div>
+	</div>
+</div>
+
+<div class="modal fade" id="TimeLimitModal" tabindex="-1" role="dialog" aria-labelledby="TimeLimitModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+          <div class="modal-header bg-dark">
+            <h5 class="modal-title" id="TimeLimitTitle">There was an Error</h5>
+          </div>
+          <div class="modal-body">
+              <h5 class="text-danger">RoboCondo took longer than expected. You can re-run now or try again later</h5>
+          </div>
+          <div class="modal-footer">
+            <a href="{% url 'investmentplan:run-robocondo' condo=condo condo_id=condo_id rfs_id=rfs_id %}">
+              <button id="ReRunButtion" type="button" class="btn btn-robo-main">
+                Re-run RoboCondo
+              </button>
+            </a>
+            <a href='{% url "condo:main" condo condo_id %}'>
+              <button type="button" class="btn btn-secondary">Return to Condo Main Page</button>
+            </a>
+          </div>
+      </div>
+    </div>
+  </div>
+
 
 {% endblock %}
 {% block end_js %}
@@ -58,11 +101,15 @@
     $("#progressbar").width(elapsed / 80 + "%");
     $("#elapsedtime").text((elapsed / 1000).toFixed(1));
     if (data.state == "SUCCESS") {
-      console.log("success!");
       $("#ProgressButton").click();
       $("#SuccessButton").click();
-    } else {
-      if (elapsed < 15000) {
+    } else if (data.state == "FAILURE" && data.details == "unsupported operand type(s) for +: 'float' and 'NoneType'") {
+      $("#InsufficientButton").click();
+    } else if (data.state == "FAILURE" && data.details == "TimeLimitExceeded(1,)") {
+      $("#TimeLimitButton").click();
+    }
+    else {
+      if (elapsed < 5000) {
         setTimeout(updateProgress, 100, progressUrl, start)
       } else {
         console.log("TIMEOUT!")

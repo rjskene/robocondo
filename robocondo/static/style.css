@@ -23,7 +23,24 @@
    width: 50% !important;
 }
 
-
 .table {
   font-size:24px !important;
     }
+  
+.outline-active-sidebar {
+  border-style: dashed;
+  border-color: #f8d878;
+  border-width: thin;
+}
+
+.nav .nav-item .nav-link:hover {
+  border-style: dashed;
+  border-color: #f8d878;
+  border-width: thin;
+  background-color: #2B6F92 !important;
+}
+
+.bg-rcyellow {
+  background-color: #f8d878;
+  color: #2B6F92;
+}

@@ -8,7 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from robocondo.celeryconf import app
 
-@shared_task(bind=True)
+@shared_task(bind=True, time_limit=15)
 def pyondo_task(self, condo_id, study_id):
 
     from pyondo.pyondo import Pyondo

@@ -8,8 +8,11 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 	<meta name="description" content="">
 	<meta name="author" content="">
-	<link rel="icon" href="{% static 'assets/img/robocondo/25037148 - no slogan.png' %}">
-
+	<link rel="icon"
+	href="{% static 'assets/img/robocondo/logos/RoboCondo_Logo.svg' %}"
+	sizes="any"
+	type="image/svg+xml"
+     />
 	<title>Robocondo - Reserve Fund Investing Made Easy</title>
 
 	<!-- Fonts -->
@@ -38,13 +41,10 @@
 	<link rel="stylesheet" href="{% static 'assets/plugins/datatables/css/responsive.dataTables.min.css' %}">
 	<link rel="stylesheet" href="{% static 'assets/plugins/datatables/css/responsive.bootstrap4.min.css' %}">
 
-	<!-- My CSS -->
-	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
-
-	<!-- CSS - OPTIONAL - END -->
-
 	<!-- QuillPro Styles -->
 	<link rel="stylesheet" href="{% static 'assets/css/quillpro/quillpro.css' %}">
+	<!-- My CSS -->
+	<link rel="stylesheet" type="text/css" href="{% static 'style.css' %}" />
 
 	{% block headtags %}{% endblock %}
 </head>
@@ -53,7 +53,7 @@
 
 	<div class="container-fluid">
 		<div class="row">
-			<nav id="sidebar" class="px-0 bg-dark bg-gradient sidebar">
+			<nav id="sidebar" class="px-0 bg-dark sidebar">
 				<ul class="nav nav-pills flex-column">
 					<li class="logo-nav-item">
 						<a class="navbar-brand" href="{% url 'accountmanager:login' %}">
@@ -62,6 +62,25 @@
 					</li>
 					{% with request.resolver_match.view_name as view_name %}
 					<!-- Condo Views -->
+					{% if view_name == "accountmanager:dashboard" %}
+					<li class="nav-item outline-active-sidebar">
+					{% else %}
+					<li class="nav-item">
+					{% endif %}
+					{% if user.is_authenticated %}
+							<a id="dashboard_sidebar" class="nav-link" href="{% url 'accountmanager:dashboard' username=user.username%}">
+								<i class="batch-icon batch-icon-browser-alt"></i>
+								Dashboard<span class="sr-only">(current)</span>
+							</a>
+						</li>
+					{% endif %}
+					{% if view_name != "accountmanager:dashboard" %}
+						<li class="mb-3">
+							<br>
+							<hr color="white" width="50%"/>
+						</li>
+						<li class="nav-item">
+					{% endif %}
 					{% if condo %}
 						<li class="nav-item">
 							<a class="nav-link">
@@ -70,7 +89,7 @@
 							</a>
 							<ul class="nav nav-pills flex-column">
 								{% if view_name == "condo:main" %}
-									<li class="nav-item bg-gradient">
+									<li class="nav-item outline-active-sidebar">
 								{% else %}
 									<li class="nav-item">
 								{% endif %}
@@ -78,7 +97,7 @@
 										Main</a>
 									</a>
 								{% if view_name == "investmentplan:plan-main" %}
-								<li class="nav-item bg-gradient">
+								<li class="nav-item outline-active-sidebar">
 								{% else %}
 								<li class="nav-item">
 								{% endif %}
@@ -91,22 +110,6 @@
 							</ul>
 						</li>
 					{% endif %}
-					{% if view_name == "accountmanager:dashboard" %}
-						<li class="nav-item bg-gradient">
-					{% else %}
-						<li>
-							<br>
-							<hr color="white" width="50%"/>
-						</li>
-						<li class="nav-item">
-					{% endif %}
-					{% if user.is_authenticated %}
-							<a id="dashboard_sidebar" class="nav-link" href="{% url 'accountmanager:dashboard' username=user.username%}">
-								<i class="batch-icon batch-icon-browser-alt"></i>
-								Dashboard<span class="sr-only">(current)</span>
-							</a>
-						</li>
-					{% endif %}
 					{% if view_name == "rcdemo:plan" %}
 						<li class="nav-item">
 							<a class="nav-link" href="#">
@@ -117,7 +120,7 @@
 					{% endif %}
 					<!-- Staff Functions & PYYC -->
 					{% if user.is_staff %}
-						<li>
+						<li class="mb-4">
 							<br>
 							<hr color="white" width="50%"/>
 						</li>
@@ -136,7 +139,7 @@
 							</ul>
 						</li>
 						{% if view_name == "pyyc:main" %}
-							<li class="nav-item bg-gradient">
+							<li class="nav-item outline-active-sidebar">
 						{% else %}
 							<li class="nav-item">
 						{% endif %}
@@ -228,7 +231,7 @@
 										{% endif %}
 									</div>
 									{% if user.is_authenticated %}
-									<div class="profile-picture bg-gradient bg-primary has-message float-right">
+									<div class="profile-picture bg-primary has-message float-right">
 										<img src="{% static 'assets/img/profile-pic.jpg' %}" width="44" height="44">
 									</div>
 									{% endif %}

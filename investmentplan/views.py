@@ -11,6 +11,8 @@ from bokeh.embed import components
 from bokeh.embed import server_session
 from bokeh.util import session_id
 
+from celery.exceptions import TimeLimitExceeded
+
 from django.db.models.functions import TruncMonth, TruncYear
 from django.db.models import Avg, Count, Min, Sum
 
@@ -157,8 +159,14 @@ def progress_view(request, **kwargs):
 @permission_required_or_403("condo.view_condo", (Condo, "id", "condo_id"))
 def get_progress(request, **kwargs):
     result = AsyncResult(kwargs["task_id"])
+
+    insufficient = False
+    if isinstance(result.info, TypeError) and str(result.info) == "unsupported operand type(s) for +: 'float' and 'NoneType'":
+        insufficient = True
+    time_limit_exceeded = True if isinstance(result.info, TimeLimitExceeded) else False
+    
     response_data = {
         "state": result.state,
-        "details": result.info,
+        "details": str(result.info) if insufficient or time_limit_exceeded else result.info
     }
     return JsonResponse(response_data)

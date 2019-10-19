@@ -1,0 +1,32 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" dir="ltr" lang="en-US">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+<title>Maintenance  - Bank of Canada</title>
+
+<style type="text/css">
+#maintenance{margin: 0 auto; margin-top: 170px; width:990px; }
+#maintenance img{display:block;margin-left:auto;margin-right:auto; margin-bottom:40px;}
+#maintenance p{text-align: center; font-size: 1.3em; line-height:1em;padding-bottom:20px; color:#444444; font-family: 'DroidSansRegular',Calibri,"Myriad Pro",Myriad,"Nimbus Sans L","Helvetica Neue",Helvetica,Arial,sans-serif;}
+#maintenance p span, #maintenance a{color:#3366CC}
+
+</style>
+
+</head>
+<body>
+
+<div id="maintenance">
+
+<img src="LogoBoC_black_EN_large.gif" alt="Bank of Canada Logo" title="Bank of Canada Logo">
+<div id="text">
+<p style="border-bottom: 1px solid #9FB1BC;"><span>Bankofcanada.ca</span> is temporarily unavailable. Please check back shortly. We apologize for any inconvenience. If you continue to see this message for an extended period, please write to: <a href="mailto:website@bankofcanada.ca">website@bankofcanada.ca</a>.</p>
+
+<p>Le site <span>banqueducanada.ca</span> est temporairement hors service. Nous vous invitons &#224; revenir un peu plus tard. Nous nous excusons des d&#233;sagr&#233;ments caus&#233;s par cette interruption de service. Si ce message reste affich&#233; au-del&#224; de la p&#233;riode annonc&#233;e, adressez-nous un courriel &#224; l'adresse : <a href="mailto:website@banqueducanada.ca">website@banqueducanada.ca</a>.</p>
+</div>
+
+</div>
+
+</body>
+
+</html>
